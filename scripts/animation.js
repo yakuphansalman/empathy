@@ -1,4 +1,4 @@
-class animation {
+class Animation {
     constructor(imageSrc, frameWidth, frameHeight, columns, rows, frameCount, animationSpeed, loop = true) {
         this.image = new Image();
         this.image.src = imageSrc;

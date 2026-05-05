@@ -1,13 +1,17 @@
-class Entity extends GameObject{
+const ASSETS_PATH = "./assets/";
+const ENTITY_PATH = ASSETS_PATH + "entity/";
 
+class Entity extends GameObject{
     img = new Image();
     facingRight = 1;
 
     physics = new Physics(this, 0.77, 0.98, 3.5, 140.0, 1.0);
 
-    constructor(name,posX, posY, health, speedX, damage, attackSpeed, attackRange, visionRange,src){
+    constructor(name,posX, posY, health, speedX, damage, attackSpeed, attackRange, visionRange, src){
         super(name, posX, posY);
-        this.img.src = src + "/entity.png";
+        this.src = ENTITY_PATH + src + "/";
+        this.img.src = ENTITY_PATH + "entity.png";
+        console.log(this.img.src);
         this.width = this.img.width;
         this.height = this.img.height;
         this.health = health;
@@ -22,7 +26,6 @@ class Entity extends GameObject{
         this.ai = new AI(this);
 
         GameManager.addEntity(this);
-        this.animation;
 /*
         this.animation = {
             // Format: Path, frameWidth, frameHeight, column, row, totalSquare, speed, loop
