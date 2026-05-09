@@ -109,7 +109,6 @@ class Entity extends GameObject{
         if (this.animation && this.animation[this.currentState]) {
             this.animation[this.currentState].draw(ctx);
         }
-        console.log(this.currentState);
 
         ctx.restore();
     }
@@ -169,7 +168,7 @@ class Entity extends GameObject{
     }
 
     jump(force, event){
-        if(this.current.isStunned){ return;}
+        if(this.isStunned){ return;}
         if(event){
             if(this.physics.isGrounded && !this.physics.jumpLock){
                 this.physics.applyForce(0, -force);
@@ -204,7 +203,7 @@ class Entity extends GameObject{
         this.attackState %= this.maxAttackState;
         this.changeState("attack" + this.attackState);
         this.lastAttack = Date.now();
-        this.physics.velocityX *= 0.3;
+        this.stun(0.5);
         this.attackState++;
 
 

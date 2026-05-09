@@ -40,10 +40,9 @@ class GameManager {
 
     }
         */
-
-    static initScene(){
+     static initScene(){
         // Player: name, posX, posY, health, speedX, damage, attackSpeed, attackRange, visionRange, src
-        this.current = new Warrior3(0,800);
+        this.current = new Knight0(0,800);
         
         // ================= ZEMİN =================
         // Oyuncunun ve düşmanların üzerinde koşacağı tek parça devasa zemin
@@ -97,17 +96,24 @@ class GameManager {
 
         // 5. Boss / Bölüm Sonu Canavarı (Canı çok yüksek, vuruş hızı yavaş ama affetmez)
         //new Entity("enemy", 3400, 700, 400, 1.2, 30, 0.6, 10, 250, "./assets/player");
-    }
-/*  AI JUMP TEST SCENE*//*
-    static initScene(){
-        this.current = new Entity("player", 350, 625, 100, 1.5, 10, 1.5, 10, 150, "./assets/player");
-        new Entity("player", 350, 700, 100, 1.5, 10, 1.0, 10, 150, "./assets/player");
-        new PatrolPoint(350, 700, 250);
+     }
 
-        new Obstacle(0, 700, 1000, 20);
-        new Obstacle(350, 625, 150, 20);
-    }
-*/
+        /* //AI JUMP TEST 
+    static initScene(){
+        this.current = new Knight0(350, 425);
+        new Knight1(500, 625);
+        //new PatrolPoint(350, 700, 300);
+
+        new Obstacle(0, 700, 10000, 20);
+        new Obstacle(350, 500, 100, 20);
+
+        new Obstacle(500, 625, 100, 20);
+        new Obstacle(600, 525, 100, 20);
+        new Obstacle(700, 425, 100, 295);
+
+        new PatrolPoint(10000, 625, 300);
+    }*/
+
     //Checking inputs
     static checkInput() {
         if(this.current.isDead === true){ return;}

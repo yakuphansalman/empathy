@@ -168,7 +168,7 @@ class Warrior3 extends Entity{
     static resY = 96;
     static speed = 25;
     constructor(posX, posY){
-        super("Warrior3", posX, posY, 124, 90, 100, 1.5, 10, 1.0, 10, 1, 150, "Warrior3");
+        super("Warrior3", posX, posY, 48, 96, 100, 1.5, 10, 1.0, 10, 1, 150, "Warrior3");
         this.animation = {
             // Format: Path, frameWidth, frameHeight, column, row, totalSquare, speed, loop
             idle: new Animation( this.src + ANIM_STATES.IDLE, Warrior3.resX, Warrior3.resY, 4, 1, 4, Warrior3.speed, true),
@@ -203,7 +203,7 @@ class Monk0 extends Entity{
     static resY = 60;
     static speed = 25;
     constructor(posX, posY){
-        super("Monk0", posX, posY, 64, 48, 100, 1.5, 10, 1.0, 10, 2, 150, "Monk0");
+        super("Monk0", posX, posY, 50, 48, 100, 1.5, 10, 1.0, 25, 2, 150, "Monk0");
         this.animation = {
             // Format: Path, frameWidth, frameHeight, column, row, totalSquare, speed, loop
             idle: new Animation( this.src + ANIM_STATES.IDLE, Monk0.resX, Monk0.resY, 4, 1, 4, Monk0.speed, true),
@@ -216,3 +216,42 @@ class Monk0 extends Entity{
         };
     }
 }
+class Hero0 extends Entity{
+    static resX = 200;
+    static resY = 200;
+    static speed = 25;
+    constructor(posX, posY){
+        super("Hero0", posX, posY, 64, 64, 100, 1.5, 10, 1.0, 20, 2, 150, "Hero0");
+        this.animation = {
+            // Format: Path, frameWidth, frameHeight, column, row, totalSquare, speed, loop
+            idle: new Animation( this.src + ANIM_STATES.IDLE, Hero0.resX, Hero0.resY, 4, 1, 4, Hero0.speed, true),
+            run: new Animation( this.src + ANIM_STATES.RUN, Hero0.resX, Hero0.resY, 8, 1, 8, Hero0.speed, true),
+            jump: new Animation( this.src + ANIM_STATES.JUMP, Hero0.resX, Hero0.resY, 2, 1, 2, Hero0.speed, false),
+            attack0: new Animation( this.src + ANIM_STATES.ATTACK0, Hero0.resX, Hero0.resY, 4, 1, 4, Hero0.speed, false),
+            attack1: new Animation( this.src + ANIM_STATES.ATTACK1, Hero0.resX, Hero0.resY, 4, 1, 4, Hero0.speed, false),
+            death: new Animation( this.src + ANIM_STATES.DEATH, Hero0.resX, Hero0.resY, 7, 1, 7, Hero0.speed, false),
+            hurt: new Animation( this.src + ANIM_STATES.HURT, Hero0.resX, Hero0.resY, 3, 1, 3, Hero0.speed, false)
+        };
+    }
+}
+
+class King0 extends Entity{
+    static resX = 160;
+    static resY = 111;
+    static speed = 25;
+    constructor(posX, posY){
+        super("King0", posX, posY, 50, 96, 100, 1.5, 10, 1.0, 20, 3, 150, "King0");
+        this.animation = {
+            // Format: Path, frameWidth, frameHeight, column, row, totalSquare, speed, loop
+            idle: new Animation( this.src + ANIM_STATES.IDLE, King0.resX, King0.resY, 8, 1, 8, King0.speed, true),
+            run: new Animation( this.src + ANIM_STATES.RUN, King0.resX, King0.resY, 8, 1, 8, King0.speed, true),
+            jump: new Animation( this.src + ANIM_STATES.JUMP, King0.resX, King0.resY, 2, 1, 2, King0.speed, false),
+            attack0: new Animation( this.src + ANIM_STATES.ATTACK0, King0.resX, King0.resY, 4, 1, 4, King0.speed, false),
+            attack1: new Animation( this.src + ANIM_STATES.ATTACK1, King0.resX, King0.resY, 4, 1, 4, King0.speed, false),
+            attack2: new Animation( this.src + ANIM_STATES.ATTACK2, King0.resX, King0.resY, 4, 1, 4, King0.speed, false),
+            death: new Animation( this.src + ANIM_STATES.DEATH, King0.resX, King0.resY, 6, 1, 6, King0.speed, false),
+            hurt: new Animation( this.src + ANIM_STATES.HURT, King0.resX, King0.resY, 4, 1, 4, King0.speed, false)
+        };
+    }
+}
+

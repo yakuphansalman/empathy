@@ -16,7 +16,7 @@ window.onload = function(){
         GameManager.update(ctx);
 
         /* Background implementation */
-        ctx.fillStyle = "#71D9E2"
+        ctx.fillStyle = "#71D9E2";
         ctx.fillRect(0, 0, cvs.width, cvs.height);
         
         /* Entity updates */
@@ -30,6 +30,7 @@ window.onload = function(){
         });
 
         GameManager.drawConnectionLine(ctx);
+        
 
         requestAnimationFrame(update);
     }

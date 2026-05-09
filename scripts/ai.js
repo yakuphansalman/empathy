@@ -10,6 +10,7 @@ class AI{
     constructor(entity){
         this.entity = entity;
         this.target = null;
+        this.center = this.entity.posX + this.entity.width/2;
         this.tolerance = this.entity.width/2;
         this.currentState = AI_STATE.CHASE;
     }
@@ -24,10 +25,41 @@ class AI{
         });
         return closest;
     }
+    get obstacleBelow(){
+        if(GameManager.allObstacles.length === 0){ return null;}
+        let closestValue = Infinity;
+        let closest = GameManager.allObstacles[0];
+        GameManager.allObstacles.forEach(obstacle => {
+            // Compare centers
+            if(obstacle.posY + obstacle.height/2 < this.entity.posY + this.entity.height/2){
+                return;
+            }
+            let obsCenter = obstacle.posX + (obstacle.width/2);
+            let delta = Math.abs(obsCenter - this.center);
+            if(delta < closestValue){ closest = obstacle; closestValue = delta;}
+        });
+        return closest;
+    }
+    get obstacleAbove(){
+        if(GameManager.allObstacles.length === 0){ return null;}
+        let closestValue = Infinity;
+        let closest = GameManager.allObstacles[0];
+        GameManager.allObstacles.forEach(obstacle => {
+            // Compare centers
+            if(obstacle.posY + obstacle.height/2 > this.entity.posY + this.entity.height/2){
+                return;
+            }
+            let obsCenter = obstacle.posX + (obstacle.width/2);
+            let delta = Math.abs(obsCenter - this.center);
+            if(delta < closestValue){ closest = obstacle; closestValue = delta;}
+        });
+        return closest;
+    }
 
 
     move(targetPosX){
         if(this.entity.isStunned){ return;}
+        this.center = this.entity.posX + this.entity.width/2;
         let deltaX = targetPosX - this.center;
         
         // Check if its not on target position
@@ -46,6 +78,14 @@ class AI{
             this.entity.applyForce(0, -5.0);
             this.lastKnownHistory--;// Jump only once for every last known position
         }
+        /* // Bozuk
+        let jumpOffset = 0.5;
+        let leftCliff = this.obstacleBelow.posX; let rightCliff = this.obstacleBelow.posX + this.obstacleBelow.width;
+        if(this.entity.posX > rightCliff - jumpOffset || this.entity.posX < leftCliff + jumpOffset){
+            this.entity.jump(5.0, this.entity.physics.isGrounded);
+        }
+*/
+        /* Patrol point yüksekte ise yakındaki en yüksek obstacle'a zıpla*/
 
     }
     lastKnownPosX = null;
@@ -54,8 +94,6 @@ class AI{
     think(){
         if(this.lastKnownPosX != null){ this.lastKnownHistory = 2;}
         else if(this.lastKnownHistory <= 0){ this.lastKnownPosX = null;}
-        // Align the position
-        this.center = this.entity.posX + (this.entity.width/2);
         // Target has to be null every frame, so if there's no target in the scene or in the sight, this entity will try to chase the unseen
         this.target = null;
         // Get closest patrol point
@@ -81,7 +119,7 @@ class AI{
         if(this.target !== null && GameManager.checkVisibility(this.entity, this.target)){
             this.currentState = AI_STATE.CHASE;
             this.lastKnownPosX = this.target.posX + (this.target.width / 2); // Save last known position
-            if(GameManager.toleratedOverlap(this.entity.width/2, this.entity, this.target)){
+            if(GameManager.toleratedOverlap(this.entity.width, this.entity, this.target)){
                 let directionToTarget = this.target.posX - this.entity.posX;
                 this.entity.facingRight = directionToTarget < 0 ? -1: 1;
                 this.currentState = AI_STATE.ATTACK;
@@ -120,7 +158,7 @@ class AI{
                     this.entity.jump(15.0, this.entity.physics.isGrounded);
                     this.lastKnownPosX = null;
                 }
-                this.move(this.target.posX + (this.target.width / 2));
+                this.move(this.target.posX + this.target.width/2);
             }
             else if(this.lastKnownPosX !== null){
                 this.move(this.lastKnownPosX);
@@ -155,6 +193,7 @@ class AI{
 
     update(){
         if(this.entity.isDead){ return;}
+        this.center = this.entity.posX + this.entity.width/2;
         this.think();
         this.act();
     }
