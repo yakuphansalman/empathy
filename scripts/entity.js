@@ -29,7 +29,7 @@ class Entity extends GameObject{
     changeState(newState) {
         if (this.currentState === newState || this.currentState === "death") { return; }
 
-        if(this.isAttacking && this.animation){
+        if(this.isAttacking && this.animation && !this.animation[this.currentState].isDone){
             if(newState !== "death"){
                 return;
             }

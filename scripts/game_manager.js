@@ -43,12 +43,11 @@ class GameManager {
 
     static initScene(){
         // Player: name, posX, posY, health, speedX, damage, attackSpeed, attackRange, visionRange, src
-        this.current = new Knight0(0,800);
+        this.current = new Warrior3(0,800);
         
         // ================= ZEMİN =================
         // Oyuncunun ve düşmanların üzerinde koşacağı tek parça devasa zemin
         new Obstacle(-500, 800, 5000, 300);
-/*
         // ================= BÖLGE 1: Parkur ve Küçük Engeller =================
         // Düşmanların sana koşarken çarpıp üstünden zıplayacağı (maksimum 40-60 birimlik) engeller
         new Obstacle(400, 760, 50, 40); // Kısa engel
@@ -98,7 +97,6 @@ class GameManager {
 
         // 5. Boss / Bölüm Sonu Canavarı (Canı çok yüksek, vuruş hızı yavaş ama affetmez)
         //new Entity("enemy", 3400, 700, 400, 1.2, 30, 0.6, 10, 250, "./assets/player");
-        // */
     }
 /*  AI JUMP TEST SCENE*//*
     static initScene(){
