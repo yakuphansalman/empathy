@@ -1,19 +1,15 @@
-const ASSETS_PATH = "./assets/";
-const ENTITY_PATH = ASSETS_PATH + "entity/";
+const ENTITY_PATH = "./assets/entity/";
 
 class Entity extends GameObject{
-    img = new Image();
     facingRight = 1;
 
     physics = new Physics(this, 0.77, 0.98, 3.5, 140.0, 1.0);
 
-    constructor(name,posX, posY, health, speedX, damage, attackSpeed, attackRange, visionRange, src){
+    constructor(name,posX, posY, width, height, health, speedX, damage, attackSpeed, attackRange, maxAttackState, visionRange, src){
         super(name, posX, posY);
-        this.src = ENTITY_PATH + src + "/";
-        this.img.src = ENTITY_PATH + "entity.png";
-        console.log(this.img.src);
-        this.width = this.img.width;
-        this.height = this.img.height;
+        this.src = ENTITY_PATH + src;
+        this.width = width;
+        this.height = height;
         this.health = health;
         this.speedX = speedX;
         this.damage = damage;
@@ -22,29 +18,18 @@ class Entity extends GameObject{
         this.visionRange = visionRange;
         this.posY -= this.height;
         this.isDead = false;
+        this.maxAttackState = maxAttackState;
 
         this.ai = new AI(this);
 
         GameManager.addEntity(this);
-/*
-        this.animation = {
-            // Format: Path, frameWidth, frameHeight, column, row, totalSquare, speed, loop
-            idle: new animation( src + "/Idle.png", 128, 64, 2, 4, 8, 25, true),
-            run: new animation( src + "/Run.png", 128, 64, 2, 4, 8, 25, true),
-
-            jump: new animation( src + "/Jump.png", 128, 64, 2, 4, 8, 25, false),
-            death: new animation( src + "/Death.png", 128, 64, 2, 2, 4, 25, false),
-
-            attack: new animation( src + "/Attack.png", 128, 64, 5, 1, 5, 25, false)
-        };
-        */
     }
     
 
     changeState(newState) {
         if (this.currentState === newState || this.currentState === "death") { return; }
 
-        if(this.currentState === "attack" && this.animation && !this.animation["attack"].isDone){
+        if(this.isAttacking && this.animation){
             if(newState !== "death"){
                 return;
             }
@@ -60,9 +45,9 @@ class Entity extends GameObject{
             this.animation[this.currentState].reset();
         }
     }
-
     update() {
         //this.checkFlip();
+        this.checkStun();
 
         if (this.animation && this.animation[this.currentState]) {
             this.animation[this.currentState].update();
@@ -74,7 +59,7 @@ class Entity extends GameObject{
             }
         }
 
-        if(Math.abs(this.physics.velocityX) < 0.1 && this.physics.isGrounded && this.currentState !== "attack"){
+        if(Math.abs(this.physics.velocityX) < 0.1 && this.physics.isGrounded && !this.isAttacking){
             this.changeState("idle");
         }
     }
@@ -93,6 +78,8 @@ class Entity extends GameObject{
     // Replace your draw method with this:
     draw(ctx) {
         ctx.save();
+
+        
 
         let centerX = this.posX + (this.width / 2) - Camera.posX;
         let centerY = this.posY + (this.height / 2) - Camera.posY;
@@ -121,9 +108,8 @@ class Entity extends GameObject{
 
         if (this.animation && this.animation[this.currentState]) {
             this.animation[this.currentState].draw(ctx);
-        } else {
-            ctx.drawImage(this.img, -this.width / 2, -this.height / 2, this.width, this.height);
         }
+        console.log(this.currentState);
 
         ctx.restore();
     }
@@ -133,6 +119,10 @@ class Entity extends GameObject{
         let cond_l = this.physics.velocityX < 0 && this.facingRight > 0;
         let cond_r = this.physics.velocityX > 0 && this.facingRight < 0;
         if (cond_l || cond_r) { this.facingRight *= -1; }
+    }
+    get isAttacking(){
+        if(!this.currentState) return false;
+        return this.currentState.startsWith("attack");
     }
 
     stateHistory = [];  // Array to store past states
@@ -178,9 +168,8 @@ class Entity extends GameObject{
         }
     }
 
-    
-
     jump(force, event){
+        if(this.current.isStunned){ return;}
         if(event){
             if(this.physics.isGrounded && !this.physics.jumpLock){
                 this.physics.applyForce(0, -force);
@@ -190,17 +179,33 @@ class Entity extends GameObject{
             this.physics.jumpLock = false;
         }
     }
+    // Stun system
+    stunDuration = 0;
+    stunCount = 0;
+    isStunned = false;
+    stun(duration){
+        this.stunDuration = duration;  
+        this.stunDuration*=60;
+        this.stunCount = 0;
+    }
+    checkStun(){
+        this.isStunned = this.stunCount < this.stunDuration;
+        this.stunCount++;
+    }
+
     // Every entity can attack and take damage
     lastAttack = Date.now();
+    attackState = 0;
     attack(){
         let baseCooldown = 2000;
         let cooldown = baseCooldown * (100 - this.attackSpeed) / 100;
         let canAttack = Date.now() > (this.lastAttack + cooldown);
-
         if (!canAttack) { return; }
-        this.changeState("attack");
+        this.attackState %= this.maxAttackState;
+        this.changeState("attack" + this.attackState);
         this.lastAttack = Date.now();
         this.physics.velocityX *= 0.3;
+        this.attackState++;
 
 
         setTimeout(() =>{
@@ -232,7 +237,10 @@ class Entity extends GameObject{
             this.die();
             return;
         }
-
+        if(this.animation["hurt"]){
+            this.changeState("hurt");
+        }
+        this.stun(2);
         let force = 1.0;
         this.physics.velocityX = hitDirection * damage* force;
         this.damageTaken = true;

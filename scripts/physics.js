@@ -48,6 +48,7 @@ class Physics{
             let ent_r = this.entity.posX + this.entity.width;
             let ent_t = this.entity.posY;
             let ent_b = this.entity.posY + this.entity.height;
+            let ent_c = this.entity.posX + this.entity.width/2;
 
             let obs_l = obstacle.posX;
             let obs_r = obstacle.posX + obstacle.width;
@@ -56,7 +57,7 @@ class Physics{
 
             // Colliding condition
             let isCollidingX =  ent_r > obs_l && ent_l < obs_r;
-            let isCollidingY = ent_b > obs_t && ent_t < obs_b;
+            let isCollidingY = ent_b > obs_t && ent_t < obs_b && obs_l < ent_c && obs_r > ent_c;
             let isColliding = isCollidingX && isCollidingY;
 
             
@@ -91,12 +92,12 @@ class Physics{
                 }
                 // Left
                 if(this.collisionDir === 0){
-                    this.entity.posX = obs_l - this.entity.width;
+                    this.entity.posX = obs_l - this.entity.width/2;
                     this.velocityX = 0;
                 }
                 // Right
                 if(this.collisionDir === 1){
-                    this.entity.posX = obs_r;
+                    this.entity.posX = obs_r + this.entity.width/2;
                     this.velocityX = 0;
                 }
             }

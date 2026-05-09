@@ -27,6 +27,7 @@ class AI{
 
 
     move(targetPosX){
+        if(this.entity.isStunned){ return;}
         let deltaX = targetPosX - this.center;
         
         // Check if its not on target position
@@ -131,8 +132,6 @@ class AI{
             else{
                 this.currentState = AI_STATE.RETURN;
             }
-            
-            console.log(this.lastKnownPosX);
         }
         else if(this.currentState === AI_STATE.PATROL){
             let point = this.getClosestPatrolPoint();

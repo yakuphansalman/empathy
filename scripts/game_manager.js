@@ -43,12 +43,12 @@ class GameManager {
 
     static initScene(){
         // Player: name, posX, posY, health, speedX, damage, attackSpeed, attackRange, visionRange, src
-        this.current = new Knight0(0,700);
+        this.current = new Knight0(0,800);
         
         // ================= ZEMİN =================
         // Oyuncunun ve düşmanların üzerinde koşacağı tek parça devasa zemin
         new Obstacle(-500, 800, 5000, 300);
-
+/*
         // ================= BÖLGE 1: Parkur ve Küçük Engeller =================
         // Düşmanların sana koşarken çarpıp üstünden zıplayacağı (maksimum 40-60 birimlik) engeller
         new Obstacle(400, 760, 50, 40); // Kısa engel
@@ -82,14 +82,14 @@ class GameManager {
         // Çeşitlilik için sadece Can, Hasar, Saldırı Hızı ve Görüş Mesafeleri değiştirildi.
         
         // 1. Engel Atlayanlar (Bölge 1 - Engellerin üstünden zıplayarak gelecekler)
-        new Knight0(500, 700);
+        new Knight1(500, 700);
         
         // 2. Arena Muhafızları (Bölge 2 - Birlikte takılan ikili)
-        //new Entity("enemy", 1100, 700, 100, 1.2, 12, 1.2, 10, 200, "./assets/player");
-        //new Entity("enemy", 1300, 700, 100, 1.2, 12, 1.2, 10, 200, "./assets/player");
+        new Warrior0(1100, 700);
+        new Knight1(1300, 700);
 
         // 3. Teras Savunmacıları (Bölge 3 - Yüksekten atlayanlar)
-        //new Entity("enemy", 1750, 600, 120, 1.2, 15, 0.8, 10, 150, "./assets/player"); // Alt teras
+        new Knight2(1750, 600); // Alt teras
         //new Entity("enemy", 2150, 300, 150, 1.2, 20, 0.5, 10, 450, "./assets/player"); // Tepe (Seni uzaktan görüp merdivenlerden aşağı zıplayarak inecek)
 
         // 4. Siper Askerleri (Bölge 4 - Siper duvarlarına çarpıp havadan kılıç indirecekler)
@@ -98,6 +98,7 @@ class GameManager {
 
         // 5. Boss / Bölüm Sonu Canavarı (Canı çok yüksek, vuruş hızı yavaş ama affetmez)
         //new Entity("enemy", 3400, 700, 400, 1.2, 30, 0.6, 10, 250, "./assets/player");
+        // */
     }
 /*  AI JUMP TEST SCENE*//*
     static initScene(){
@@ -112,6 +113,7 @@ class GameManager {
     //Checking inputs
     static checkInput() {
         if(this.current.isDead === true){ return;}
+        if(this.current.isStunned){ return;}
         if (keys.KeyR) {
             for (let i = 0; i < this.allEntities.length; i++) {
                 this.allEntities[i].rewind();
@@ -120,7 +122,7 @@ class GameManager {
             if (!this.current) return;
 
             let currentState = this.current.currentState;
-            if (currentState === "attack" || currentState === "death") {
+            if (this.current.isAttacking || currentState === "death") {
                 return;
             }
 
@@ -168,7 +170,7 @@ class GameManager {
 
             if (!this.current.physics.isGrounded && currentState !== "jump") {
                 this.current.changeState("jump");
-            } else if (this.current.physics.isGrounded && this.current.currentState !== "attack" && !this.current.physics.moveable) {
+            } else if (this.current.physics.isGrounded && !this.current.isAttacking && !this.current.physics.moveable) {
                 this.current.changeState("idle");
             }
 
@@ -284,7 +286,6 @@ class GameManager {
         this.checkInput();
         this.drawConnectionLine(ctx);
 
-
         
         this.allEntities.forEach(entity => {
             /* Physics calls */
@@ -293,7 +294,7 @@ class GameManager {
             if(entity !== this.current){
                 entity.ai.update();
             }
-
+            /* Animation calls */
             if (entity.update) {
                 entity.update();
             }
