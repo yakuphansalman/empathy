@@ -3,24 +3,29 @@ var ctx = cvs.getContext('2d');
 
 // ── Theme switching via keyboard (1-4) ────────────────────────────────────────
 window.addEventListener('keydown', (e) => {
-    switch(e.code) {
+    switch (e.code) {
         case 'Digit1': LevelManager.loadTheme(LEVELS.FOREST); break;
         case 'Digit2': LevelManager.loadTheme(LEVELS.WINTER); break;
-        case 'Digit3': LevelManager.loadTheme(LEVELS.NIGHT);  break;
-        case 'Digit4': LevelManager.loadTheme(LEVELS.MAGIC);  break;
+        case 'Digit3': LevelManager.loadTheme(LEVELS.NIGHT); break;
+        case 'Digit4': LevelManager.loadTheme(LEVELS.MAGIC); break;
     }
 });
 
-window.onload = function(){
+// Wait for EVERYTHING to load before starting the game
+window.onload = function () {
 
-    // Start with Forest theme (level 0)
-    LevelManager.loadTheme(LEVELS.FOREST);
+    // Define the start function inside onload
+    function start() {
+        LevelManager.loadTheme(LEVELS.FOREST);
 
-    function start(){
-        GameManager.initScene();
+        // Make sure to initialize your GameManager here!
+        if (GameManager.initScene) {
+            GameManager.initScene();
+        }
     }
 
-    function update(){
+    // Define the update function inside onload
+    function update() {
         ctx.clearRect(0, 0, cvs.width, cvs.height);
 
         // ── 1. Background (parallax, sky fallback) ──
@@ -31,12 +36,12 @@ window.onload = function(){
 
         // ── 3. Obstacles (platform textures) ──
         GameManager.allObstacles.forEach(element => {
-            element.draw(ctx);
+            if (element.draw) element.draw(ctx);
         });
 
         // ── 4. Entities (characters) ──
         GameManager.allEntities.forEach(element => {
-            element.draw(ctx);
+            if (element.draw) element.draw(ctx);
         });
 
         // ── 5. Debug line ──
@@ -48,6 +53,18 @@ window.onload = function(){
         requestAnimationFrame(update);
     }
 
+    // ── Audio Setup ──
+    const bgMusic = SoundManager.playBGM('./assets/music/The_Iron_Anvil.mp3', 0.4);
+
+    cvs.addEventListener('click', function () {
+        bgMusic.play();
+    }, { once: true });
+
+    document.addEventListener('keydown', function () {
+        bgMusic.play();
+    }, { once: true });
+
+    // START THE GAME LOOP
     start();
     update();
 }

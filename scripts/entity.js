@@ -1,11 +1,11 @@
 const ENTITY_PATH = "./assets/entity/";
 
-class Entity extends GameObject{
+class Entity extends GameObject {
     facingRight = 1;
 
     physics = new Physics(this, 0.77, 0.98, 3.5, 140.0, 1.0);
 
-    constructor(name,posX, posY, width, height, health, speedX, damage, attackSpeed, attackRange, maxAttackState, visionRange, src){
+    constructor(name, posX, posY, width, height, health, speedX, damage, attackSpeed, attackRange, maxAttackState, visionRange, src) {
         super(name, posX, posY);
         this.src = ENTITY_PATH + src;
         this.width = width;
@@ -24,13 +24,13 @@ class Entity extends GameObject{
 
         GameManager.addEntity(this);
     }
-    
+
 
     changeState(newState) {
         if (this.currentState === newState || this.currentState === "death") { return; }
 
-        if(this.isAttacking && this.animation && !this.animation[this.currentState].isDone){
-            if(newState !== "death"){
+        if (this.isAttacking && this.animation && !this.animation[this.currentState].isDone) {
+            if (newState !== "death") {
                 return;
             }
         }
@@ -59,7 +59,7 @@ class Entity extends GameObject{
             }
         }
 
-        if(Math.abs(this.physics.velocityX) < 0.1 && this.physics.isGrounded && !this.isAttacking){
+        if (Math.abs(this.physics.velocityX) < 0.1 && this.physics.isGrounded && !this.isAttacking) {
             this.changeState("idle");
         }
     }
@@ -79,7 +79,7 @@ class Entity extends GameObject{
     draw(ctx) {
         ctx.save();
 
-        
+
 
         let centerX = this.posX + (this.width / 2) - Camera.posX;
         let centerY = this.posY + (this.height / 2) - Camera.posY;
@@ -113,15 +113,17 @@ class Entity extends GameObject{
         ctx.restore();
     }
 
+
     // Manages facing direction because of some inputs or ai calls
     checkFlip() {
         let cond_l = this.physics.velocityX < 0 && this.facingRight > 0;
         let cond_r = this.physics.velocityX > 0 && this.facingRight < 0;
         if (cond_l || cond_r) { this.facingRight *= -1; }
     }
-    get isAttacking(){
-        if(!this.currentState) return false;
+    get isAttacking() {
+        if (!this.currentState) return false;
         return this.currentState.startsWith("attack");
+
     }
 
     stateHistory = [];  // Array to store past states
@@ -167,14 +169,14 @@ class Entity extends GameObject{
         }
     }
 
-    jump(force, event){
-        if(this.isStunned){ return;}
-        if(event){
-            if(this.physics.isGrounded && !this.physics.jumpLock){
+    jump(force, event) {
+        if (this.isStunned) { return; }
+        if (event) {
+            if (this.physics.isGrounded && !this.physics.jumpLock) {
                 this.physics.applyForce(0, -force);
             }
             this.physics.jumpLock = true;
-        } else{
+        } else {
             this.physics.jumpLock = false;
         }
     }
@@ -182,12 +184,12 @@ class Entity extends GameObject{
     stunDuration = 0;
     stunCount = 0;
     isStunned = false;
-    stun(duration){
-        this.stunDuration = duration;  
-        this.stunDuration*=60;
+    stun(duration) {
+        this.stunDuration = duration;
+        this.stunDuration *= 60;
         this.stunCount = 0;
     }
-    checkStun(){
+    checkStun() {
         this.isStunned = this.stunCount < this.stunDuration;
         this.stunCount++;
     }
@@ -195,11 +197,14 @@ class Entity extends GameObject{
     // Every entity can attack and take damage
     lastAttack = Date.now();
     attackState = 0;
-    attack(){
+    attack() {
         let baseCooldown = 2000;
         let cooldown = baseCooldown * (100 - this.attackSpeed) / 100;
         let canAttack = Date.now() > (this.lastAttack + cooldown);
         if (!canAttack) { return; }
+
+        SoundManager.play('./assets/music/attack_sounds.mp3', this, 0.6);
+
         this.attackState %= this.maxAttackState;
         this.changeState("attack" + this.attackState);
         this.lastAttack = Date.now();
@@ -207,41 +212,44 @@ class Entity extends GameObject{
         this.attackState++;
 
 
-        setTimeout(() =>{
-        for(let i = 0; i < GameManager.allEntities.length; i++){
-            let target = GameManager.allEntities[i];
-            if (this === target) { continue; }
-            let deltaX = target.posX - this.posX;
-            let deltaY = target.posY - this.posY;
+        setTimeout(() => {
+            for (let i = 0; i < GameManager.allEntities.length; i++) {
+                let target = GameManager.allEntities[i];
+                if (this === target) { continue; }
+                let deltaX = target.posX - this.posX;
+                let deltaY = target.posY - this.posY;
 
-            let maxReach = (this.width/2) + (target.width/2) + this.attackRange;
+                let maxReach = (this.width / 2) + (target.width / 2) + this.attackRange;
 
-            let inRangeX = Math.abs(deltaX) <= maxReach;
-            let inRangeY = Math.abs(deltaY) <= this.height;
+                let inRangeX = Math.abs(deltaX) <= maxReach;
+                let inRangeY = Math.abs(deltaY) <= this.height;
 
-            let isInFront = (deltaX*this.facingRight) >= 0 || Math.abs(deltaX) < (this.width/2)
+                let isInFront = (deltaX * this.facingRight) >= 0 || Math.abs(deltaX) < (this.width / 2)
 
-            if(inRangeX && inRangeY && isInFront){
-                target.takeDamage(this.damage, this.facingRight);
+                if (inRangeX && inRangeY && isInFront) {
+                    target.takeDamage(this.damage, this.facingRight);
+                }
             }
-        }
-        }, 500-(this.attackSpeed)*0.5);// Timeout is for animation takeDamage sync
+        }, 500 - (this.attackSpeed) * 0.5);// Timeout is for animation takeDamage sync
     }
 
     damageTaken = false;
     takeDamage(damage, hitDirection) {
         this.health -= damage;
-        if (this.health <= 0) { 
+        if (this.health <= 0) {
             this.health = 0;
             this.die();
             return;
         }
-        if(this.animation["hurt"]){
+
+        SoundManager.play('./assets/music/hurt_sounds.mp3', this, 0.7);
+
+        if (this.animation["hurt"]) {
             this.changeState("hurt");
         }
         this.stun(2);
         let force = 1.0;
-        this.physics.velocityX = hitDirection * damage* force;
+        this.physics.velocityX = hitDirection * damage * force;
         this.damageTaken = true;
     }
 
@@ -249,6 +257,7 @@ class Entity extends GameObject{
         this.isDead = true;
         this.changeState("death");
         this.physics.stop(1000);
+        SoundManager.play('./assets/music/death_sounds.mp3', this, 0.8);
         setTimeout(() => {
             this.posX = 10000;
             this.posY = 10000;
