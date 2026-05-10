@@ -34,44 +34,18 @@ window.onload = function () {
         // ── 2. Game logic (physics, AI, input) ──
         GameManager.update(ctx);
 
-        // ── 3. Obstacles (platform textures) ──
-        GameManager.allObstacles.forEach(element => {
-            if (element.draw) element.draw(ctx);
-        });
-
-        // ── 4. Entities (characters) ──
-        GameManager.allEntities.forEach(element => {
-            if (element.draw) element.draw(ctx);
-        });
-
         // ── 5. Debug line ──
         GameManager.drawConnectionLine(ctx);
 
         // ── 6. HUD: theme selector ──
         LevelManager.drawHUD(ctx, cvs);
 
-        /* Background implementation */
-        ctx.fillStyle = "#71D9E2";
-        ctx.fillRect(0, 0, cvs.width, cvs.height);
-
         ctx.save();
         ctx.translate(cvs.width/2, cvs.height/2);
         ctx.scale(Camera.zoom, Camera.zoom);
         ctx.translate(-cvs.width/2, -cvs.height/2);
-
-        GameManager.update(ctx);
         
         ctx.restore();
-        // ── 3. Obstacles (platform textures) ──
-        GameManager.allObstacles.forEach(element => {
-            if (element.draw) element.draw(ctx);
-        });
-
-        // ── 4. Entities (characters) ──
-        GameManager.allEntities.forEach(element => {
-            if (element.draw) element.draw(ctx);
-        });
-
         // ── 5. Debug line ──
         GameManager.drawConnectionLine(ctx);
 
