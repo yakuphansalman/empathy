@@ -169,6 +169,7 @@ class GameManager {
                     this.current.physics.applyForce(0, -10);
                     this.current.changeState("jump");
                     this.current.physics.isGrounded = false;
+                    SoundManager.play('./assets/music/jump_sounds.mp3', this.current, 0.5);
                 }
                 this.current.physics.jumpLock = true;
             } else if (!keys.Space) { this.current.physics.jumpLock = false; }

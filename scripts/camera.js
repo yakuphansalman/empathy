@@ -2,7 +2,7 @@ class Camera{
     static posX = 0.0; static posY = 0.0;
 
     static offsetX = 640.0; 
-    static offsetY = 360.0;
+    static offsetY = 520.0;
 
     static lookAhead = 200.0;
     static zoom = 1.2;
