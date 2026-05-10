@@ -40,64 +40,72 @@ class GameManager {
         //new Obstacle(800, 580, 400, 20);//Short Obstacle
 
     }
-        */
-     static initScene(){
-        // Player: name, posX, posY, health, speedX, damage, attackSpeed, attackRange, visionRange, src
-        this.current = new Knight0(0,800);
-        
-        // ================= ZEMİN =================
-        // Oyuncunun ve düşmanların üzerinde koşacağı tek parça devasa zemin
-        new Obstacle(-500, 800, 5000, 300);
-        // ================= BÖLGE 1: Parkur ve Küçük Engeller =================
-        // Düşmanların sana koşarken çarpıp üstünden zıplayacağı (maksimum 40-60 birimlik) engeller
-        //new Obstacle(400, 760, 50, 40); // Kısa engel
-        new Obstacle(700, 720, 60, 80); // Orta boy basamak
-        new Obstacle(750, 760, 150, 40); // Basamağın uzantısı
+        */static initScene() {
+    // =========================================================
+    // ANA KARAKTER (PLAYER)
+    // =========================================================
+    this.current = new Hero0(100, 800); // Maceracı kahramanımız başlangıçta
 
-        // ================= BÖLGE 2: Arena =================
-        // Düşmanların devriye atacağı geniş ve düz savaş alanı
-        new PatrolPoint(0, 800, 200); 
+    // =========================================================
+    // BÖLGE 1: EĞİTİM VE TEMEL MUHAFIZLAR (Zemin Kat)
+    // =========================================================
+    // Ana Zemin
+    new Obstacle(-200, 864, 6000, 200); 
 
-        // ================= BÖLGE 3: Düşük Zıplama Terasları =================
-        // Karakterlerin az zıplayabildiğini bildiğimiz için aralarındaki yükseklik farkı sadece 80-100 piksel olan platformlar
-        new Obstacle(1700, 700, 250, 20); 
-        new Obstacle(1850, 600, 250, 20);
-        new Obstacle(1700, 500, 250, 20);
-        new Obstacle(2000, 420, 350, 20); // Keskin nişancı tepesi (Zirve)
+    // Küçük Engeller ve Knight Serisi
+    new Knight0(800, 800);  // İlk karşılaşma: Temel Knight
+    new Obstacle(1200, 800, 150, 64);
+    new Knight1(1300, 700);  // Engelin üzerinde bekleyen Knight1
+    
+    new PatrolPoint(1800, 864, 300);
+    new Knight2(1800, 800); 
+    new Knight3(2000, 800); // Ağır Knight ikilisi
 
-        // ================= BÖLGE 4: Siperler (Trenches) =================
-        // Düşmanların arasına saklanacağı ve üstünden zıplayarak sana saldıracağı kısa duvarlar
-        new Obstacle(2600, 740, 40, 60);
-        new Obstacle(2900, 740, 40, 60);
+    // =========================================================
+    // BÖLGE 2: SAMURAY BAHÇESİ VE WARRIOR KAMPI (Yatay İlerleme)
+    // =========================================================
+    new Obstacle(2500, 750, 400, 20); // Havada bir platform
+    new Samurai0(2600, 650); // Hızlı Samurai platformda devriye atıyor
+    new PatrolPoint(2700, 750, 150);
 
-        // ================= DEVRİYE NOKTALARI =================
-        new PatrolPoint(600, 720, 100); // Basamak üstü devriyesi
-        new PatrolPoint(1800, 700, 100); // 1. Teras devriyesi
-        new PatrolPoint(2150, 420, 150); // Tepe devriyesi
-        new PatrolPoint(2750, 800, 100); // İki siper arası devriye
+    // Savaşçı barikatları
+    new Obstacle(3200, 800, 50, 64);
+    new Warrior0(3400, 800);
+    new Warrior1(3700, 800);
+    new Obstacle(3900, 750, 100, 114); // Yüksek bir duvar
 
-        // ================= DÜŞMANLAR =================
-        // ŞARTLAR SAĞLANDI: Tüm düşmanlarda speedX = 1.5 ve attackRange = 10
-        // Çeşitlilik için sadece Can, Hasar, Saldırı Hızı ve Görüş Mesafeleri değiştirildi.
-        
-        // 1. Engel Atlayanlar (Bölge 1 - Engellerin üstünden zıplayarak gelecekler)
-        new King0(200, 700);
-        
-        // 2. Arena Muhafızları (Bölge 2 - Birlikte takılan ikili)
-        new Warrior0(1100, 700);
-        new Knight1(1300, 700);
+    // =========================================================
+    // BÖLGE 3: DEMON'S PIT VE MONK TAPINAĞI (Dikey Parkur)
+    // =========================================================
+    // Derin bir çukur ve üzerinde platformlar
+    new Obstacle(4200, 950, 800, 100); // Çukurun dibi
+    new Demon0(4500, 850); // Çukurun dibindeki devasa Demon0
 
-        // 3. Teras Savunmacıları (Bölge 3 - Yüksekten atlayanlar)
-        new Knight2(1750, 600); // Alt teras
-        //new Entity("enemy", 2150, 300, 150, 1.2, 20, 0.5, 10, 450, "./assets/player"); // Tepe (Seni uzaktan görüp merdivenlerden aşağı zıplayarak inecek)
+    // Yukarı tırmanış basamakları
+    new Obstacle(5100, 750, 200, 20);
+    new Warrior2(5150, 650);
+    
+    new Obstacle(5400, 600, 200, 20);
+    new Warrior3(5450, 500);
 
-        // 4. Siper Askerleri (Bölge 4 - Siper duvarlarına çarpıp havadan kılıç indirecekler)
-        //new Entity("enemy", 2750, 700, 80, 1.2, 15, 1.5, 10, 150, "./assets/player");
-        //new Entity("enemy", 3000, 700, 80, 1.2, 15, 1.5, 10, 200, "./assets/player");
+    // Yüksek Tapınak Girişi
+    new Obstacle(5700, 450, 600, 20); 
+    new Monk0(5800, 350); // Tapınak koruyucusu Monk
+    new PatrolPoint(6000, 450, 200);
 
-        // 5. Boss / Bölüm Sonu Canavarı (Canı çok yüksek, vuruş hızı yavaş ama affetmez)
-        //new Entity("enemy", 3400, 700, 400, 1.2, 30, 0.6, 10, 250, "./assets/player");
-     }
+    // =========================================================
+    // BÖLGE 4: KRALIN TAHT ODASI (Final Boss)
+    // =========================================================
+    // Devasa bir asma kat/taht platformu
+    new Obstacle(6500, 350, 1200, 500); // Kalın bir kale duvarı/zemin
+    
+    // Kral ve Elit Muhafızı
+    new King0(7000, 200);   // Final Boss: King0
+    new Knight3(6700, 250); // Kralın sol muhafızı
+    new Warrior0(7300, 250); // Kralın sağ muhafızı
+
+    new PatrolPoint(7000, 350, 400); // Kralın taht odası devriyesi
+}
       /*  //AI JUMP TEST 
     static initScene(){
         this.current = new Knight0(250, 425);

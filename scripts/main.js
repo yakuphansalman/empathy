@@ -65,7 +65,6 @@ window.onload = function () {
     document.addEventListener('keydown', function () {
         bgMusic.play();
     }, { once: true });
-
     // START THE GAME LOOP
     start();
     update();
