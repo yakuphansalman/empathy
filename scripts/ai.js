@@ -1,7 +1,6 @@
 AI_STATE = {
     RETURN: -1,
     PATROL: 0,
-    STARE: 1,
     CHASE: 2,
     ATTACK: 3
 }
@@ -76,24 +75,12 @@ class AI{
         if(collision && this.entity.physics.isGrounded){
             this.entity.changeState("jump");
             this.entity.applyForce(0, -5.0);
-            this.lastKnownHistory--;// Jump only once for every last known position
         }
-        /* // Bozuk
-        let jumpOffset = 0.5;
-        let leftCliff = this.obstacleBelow.posX; let rightCliff = this.obstacleBelow.posX + this.obstacleBelow.width;
-        if(this.entity.posX > rightCliff - jumpOffset || this.entity.posX < leftCliff + jumpOffset){
-            this.entity.jump(5.0, this.entity.physics.isGrounded);
-        }
-*/
-        /* Patrol point yüksekte ise yakındaki en yüksek obstacle'a zıpla*/
-
     }
     lastKnownPosX = null;
-    lastKnownHistory = 0;
+    stuckTimer = 0;
 
     think(){
-        if(this.lastKnownPosX != null){ this.lastKnownHistory = 2;}
-        else if(this.lastKnownHistory <= 0){ this.lastKnownPosX = null;}
         // Target has to be null every frame, so if there's no target in the scene or in the sight, this entity will try to chase the unseen
         this.target = null;
         // Get closest patrol point
@@ -115,13 +102,38 @@ class AI{
                 this.target = Math.abs(this.target.posX - this.entity.posX) < Math.abs(target.posX - this.entity.posX) ? this.target : target;
             }
         });
+        // Stuck state
+        if(this.currentState !== AI_STATE.ATTACK){
+            if(Math.abs(this.entity.physics.velocityX) < 0.1){
+                this.stuckTimer++;
+            }else{ this.stuckTimer = 0;}
+        }
+        if(this.stuckTimer > 180){
+            let reverseDir = this.entity.facingRight * -1;
+            let newPatrolX = this.center + (reverseDir * 100);
+            let create = true;
+            GameManager.allPatrolPoints.forEach(point => {
+                if(point.posX === newPatrolX){
+                    create = false;
+                }
+            });
+            if(create){
+                new PatrolPoint(newPatrolX, this.entity.posY, 150);
+            }
+            this.entity.facingRight = reverseDir;
+            this.stuckTimer = 0;
+
+            this.lastKnownPosX = null;
+        }
         // Chase and Attack
-        if(this.target !== null && GameManager.checkVisibility(this.entity, this.target)){
+        else if(this.target !== null && GameManager.checkVisibility(this.entity, this.target)){
             this.currentState = AI_STATE.CHASE;
             this.lastKnownPosX = this.target.posX + (this.target.width / 2); // Save last known position
-            if(GameManager.toleratedOverlap(this.entity.width, this.entity, this.target)){
+            let maxReach = this.entity.width/2 + (this.target.width/2) + this.entity.attackRange;
+            if(GameManager.toleratedOverlap(maxReach, this.entity, this.target)){
                 let directionToTarget = this.target.posX - this.entity.posX;
                 this.entity.facingRight = directionToTarget < 0 ? -1: 1;
+                this.stuckTimer = 0;
                 this.currentState = AI_STATE.ATTACK;
             }
         }
@@ -132,7 +144,6 @@ class AI{
         else if(closestPatrolPoint !== null){
             let patrolBoundRight = closestPatrolPoint.posX + closestPatrolPoint.range;
             let patrolBoundLeft = closestPatrolPoint.posX - closestPatrolPoint.range;
-
             if(this.center < patrolBoundLeft || this.center > patrolBoundRight){
                 this.currentState = AI_STATE.RETURN;
             }
@@ -196,6 +207,7 @@ class AI{
         this.center = this.entity.posX + this.entity.width/2;
         this.think();
         this.act();
+        console.log(GameManager.allPatrolPoints.length);
     }
 }
 class PatrolPoint extends GameObject{
@@ -203,6 +215,42 @@ class PatrolPoint extends GameObject{
         super("patrol", posX, posY);
         this.range = range;
         GameManager.addPatrolPoint(this);
+    }
+
+    draw(ctx) {
+        // Sadece GameManager'da debugMode açıksa (H tuşu) çiz!
+        if (GameManager.debugMode) {
+            // Kameranın pozisyonunu çıkartarak ekrandaki gerçek yerini buluyoruz
+            let drawX = this.posX - Camera.posX;
+            let drawY = this.posY - Camera.posY;
+
+            ctx.strokeStyle = "red";
+            
+            // 1. Yatay Ana Devriye Çizgisi (-range ile +range arası)
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(drawX - this.range, drawY);
+            ctx.lineTo(drawX + this.range, drawY);
+            ctx.stroke();
+
+            // 2. Çentikler (Sınırları ve merkezi belirten dikey çizgiler)
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            
+            // Sol sınır çizgisi
+            ctx.moveTo(drawX - this.range, drawY - 15);
+            ctx.lineTo(drawX - this.range, drawY + 15);
+            
+            // Merkez nokta (Devriye noktasının tam ortası - daha uzun olsun)
+            ctx.moveTo(drawX, drawY - 25);
+            ctx.lineTo(drawX, drawY + 25);
+            
+            // Sağ sınır çizgisi
+            ctx.moveTo(drawX + this.range, drawY - 15);
+            ctx.lineTo(drawX + this.range, drawY + 15);
+            
+            ctx.stroke();
+        }
     }
 
 }

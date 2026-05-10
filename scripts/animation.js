@@ -1,4 +1,5 @@
 class Animation {
+    static isReversed = false;
     constructor(imageSrc, frameWidth, frameHeight, columns, rows, frameCount, animationSpeed, loop = true) {
         this.image = new Image();
         this.image.src = imageSrc;
@@ -10,23 +11,39 @@ class Animation {
         this.animationSpeed = animationSpeed;
         this.loop = loop;
 
+        this.isReversed = false;        
         this.currentFrame = 0;
         this.gameFrame = 0;
         this.isDone = false;  //Is the animation repetitive?
     }
+    
     update() {
         if (this.isDone && !this.loop) return;
 
         this.gameFrame++;
 
         if (this.gameFrame % this.animationSpeed === 0) {
-            this.currentFrame++;
-            if (this.currentFrame >= this.frameCount) {
-                if (this.loop) {
-                    this.currentFrame = 0;
-                } else {
-                    this.currentFrame = this.frameCount - 1;
-                    this.isDone = true;
+            if(!Animation.isReversed){
+                this.currentFrame++;
+                if (this.currentFrame >= this.frameCount) {
+                    if (this.loop) {
+                        this.currentFrame = 0;
+                    } else {
+                        this.currentFrame = this.frameCount - 1;
+                        this.isDone = true;
+                    }
+                }
+            }
+            else{
+                this.currentFrame--;
+                if(this.currentFrame < 0){
+                    if(this.loop){
+                        this.currentFrame = this.frameCount -1;
+                    }
+                    else{
+                        this.currentFrame = 0;
+                        this.isDone = true;
+                    }
                 }
             }
         }

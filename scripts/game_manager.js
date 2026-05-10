@@ -1,4 +1,5 @@
 class GameManager {
+    static debugMode = true;
 
     static camera;
     static current;
@@ -49,13 +50,13 @@ class GameManager {
         new Obstacle(-500, 800, 5000, 300);
         // ================= BÖLGE 1: Parkur ve Küçük Engeller =================
         // Düşmanların sana koşarken çarpıp üstünden zıplayacağı (maksimum 40-60 birimlik) engeller
-        new Obstacle(400, 760, 50, 40); // Kısa engel
+        //new Obstacle(400, 760, 50, 40); // Kısa engel
         new Obstacle(700, 720, 60, 80); // Orta boy basamak
-        new Obstacle(760, 760, 150, 40); // Basamağın uzantısı
+        new Obstacle(750, 760, 150, 40); // Basamağın uzantısı
 
         // ================= BÖLGE 2: Arena =================
         // Düşmanların devriye atacağı geniş ve düz savaş alanı
-        new PatrolPoint(1200, 800, 200); 
+        new PatrolPoint(0, 800, 200); 
 
         // ================= BÖLGE 3: Düşük Zıplama Terasları =================
         // Karakterlerin az zıplayabildiğini bildiğimiz için aralarındaki yükseklik farkı sadece 80-100 piksel olan platformlar
@@ -80,7 +81,7 @@ class GameManager {
         // Çeşitlilik için sadece Can, Hasar, Saldırı Hızı ve Görüş Mesafeleri değiştirildi.
         
         // 1. Engel Atlayanlar (Bölge 1 - Engellerin üstünden zıplayarak gelecekler)
-        new Knight1(500, 700);
+        new King0(200, 700);
         
         // 2. Arena Muhafızları (Bölge 2 - Birlikte takılan ikili)
         new Warrior0(1100, 700);
@@ -97,23 +98,22 @@ class GameManager {
         // 5. Boss / Bölüm Sonu Canavarı (Canı çok yüksek, vuruş hızı yavaş ama affetmez)
         //new Entity("enemy", 3400, 700, 400, 1.2, 30, 0.6, 10, 250, "./assets/player");
      }
-
-        /* //AI JUMP TEST 
+      /*  //AI JUMP TEST 
     static initScene(){
-        this.current = new Knight0(350, 425);
-        new Knight1(500, 625);
+        this.current = new Knight0(250, 425);
+        new Knight1(550, 625);
         //new PatrolPoint(350, 700, 300);
 
         new Obstacle(0, 700, 10000, 20);
-        new Obstacle(350, 500, 100, 20);
+        new Obstacle(250, 500, 100, 20);
 
-        new Obstacle(500, 625, 100, 20);
-        new Obstacle(600, 525, 100, 20);
-        new Obstacle(700, 425, 100, 295);
+        new Obstacle(500, 625, 200, 20);
+        new Obstacle(700, 525, 200, 20);
+        new Obstacle(1000, 425, 200, 295);
 
-        new PatrolPoint(10000, 625, 300);
-    }*/
-
+        new PatrolPoint(1200, 625, 300);
+    }
+*/
     //Checking inputs
     static checkInput() {
         if(this.current.isDead === true){ return;}
@@ -123,6 +123,7 @@ class GameManager {
                 this.allEntities[i].rewind();
             }
         } else {
+            Animation.isReversed = false;
             if (!this.current) return;
 
             let currentState = this.current.currentState;
@@ -178,9 +179,7 @@ class GameManager {
                 this.current.changeState("idle");
             }
 
-            for (let i = 0; i < this.allEntities.length; i++) {
-                this.allEntities[i].saveState();
-            }
+            
             if (keys.KeyZ) {
                 let target = this.getClosestVisibleTarget();
 
@@ -306,6 +305,16 @@ class GameManager {
                 entity.draw(ctx);
             }
         });
+        this.allObstacles.forEach(obstacle => {
+            obstacle.draw(ctx);
+        });
+        if(GameManager.debugMode){
+            this.allPatrolPoints.forEach(point => {
+                if(point.draw){
+                    point.draw(ctx);
+                }
+            });
+        }
         if(!this.current.isDead){
             Camera.focus(this.current);
         }

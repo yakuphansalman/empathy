@@ -13,28 +13,21 @@ window.onload = function(){
     /* This function repeats itself */
     function update(){
         ctx.clearRect(0, 0, cvs.width, cvs.height);
-        GameManager.update(ctx);
 
         /* Background implementation */
         ctx.fillStyle = "#71D9E2";
         ctx.fillRect(0, 0, cvs.width, cvs.height);
+
+        ctx.save();
+        ctx.translate(cvs.width/2, cvs.height/2);
+        ctx.scale(Camera.zoom, Camera.zoom);
+        ctx.translate(-cvs.width/2, -cvs.height/2);
+
+        GameManager.update(ctx);
         
-        /* Entity updates */
-        GameManager.allEntities.forEach(element => {
-            element.draw(ctx);
-        });
-
-        /* Obstacle updates */
-        GameManager.allObstacles.forEach(element =>{
-            element.draw(ctx);
-        });
-
-        GameManager.drawConnectionLine(ctx);
-        
-
+        ctx.restore();
         requestAnimationFrame(update);
     }
- 
 
     start();
     update();

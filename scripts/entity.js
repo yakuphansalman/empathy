@@ -47,6 +47,7 @@ class Entity extends GameObject{
     }
     update() {
         //this.checkFlip();
+        if(Animation.isReversed){ return;}
         this.checkStun();
 
         if (this.animation && this.animation[this.currentState]) {
@@ -62,6 +63,7 @@ class Entity extends GameObject{
         if(Math.abs(this.physics.velocityX) < 0.1 && this.physics.isGrounded && !this.isAttacking){
             this.changeState("idle");
         }
+        this.saveState();
     }
 
     applyForce(forceX, forceY) {
@@ -102,6 +104,18 @@ class Entity extends GameObject{
             ctx.fill();                         // Fill the shape with color
         }
 
+        if (GameManager.debugMode) {
+            ctx.strokeStyle = "#00FF00";
+            ctx.lineWidth = 1;       // Çizgi kalınlığı
+            
+            // Merkezde olduğumuz için çizime sol üstten (-width/2, -height/2) başlıyoruz
+            ctx.strokeRect(-this.width / 2, -this.height / 2, this.width, this.height);
+            
+            // İstersen merkeze ufak bir nokta da koyabilirsin (Yapay Zeka takibi için faydalı)
+            ctx.fillStyle = "yellow";
+            ctx.fillRect(-2, -2, 4, 4); 
+        }
+
         // Apply specific offsets (Mushrooms will be 0, Player will be -15)
         ctx.translate(this.spriteOffsetX * this.facingRight, this.spriteOffsetY);
         ctx.scale(this.facingRight, 1);
@@ -140,7 +154,9 @@ class Entity extends GameObject{
             health: this.health,
             currentState: this.currentState,
             facingRight: this.facingRight,
-            animFrame: currentAnimFreame
+            animFrame: currentAnimFreame,
+            velocityX: this.physics.velocityX,
+            velocityY: this.physics.velocityY
         });
 
         // Limit history size
@@ -151,6 +167,7 @@ class Entity extends GameObject{
 
     // Return to last state
     rewind() {
+        Animation.isReversed = true;
         if (this.stateHistory.length > 0) {
             const lastState = this.stateHistory.pop();
 
@@ -161,9 +178,14 @@ class Entity extends GameObject{
             this.currentState = lastState.currentState;
             this.facingRight = lastState.facingRight;
 
+            this.physics.velocityX = lastState.velocityX;
+            this.physics.velocityY = lastState.velocityY;
+
             if (this.animation && this.animation[this.currentState]) {
                 this.animation[this.currentState].currentFrame = lastState.animFrame;
             }
+        }else{
+            Animation.isReversed = false;
         }
     }
 
@@ -203,7 +225,7 @@ class Entity extends GameObject{
         this.attackState %= this.maxAttackState;
         this.changeState("attack" + this.attackState);
         this.lastAttack = Date.now();
-        this.stun(0.5);
+        this.stun(0.75 + 1/this.attackSpeed);
         this.attackState++;
 
 
@@ -252,7 +274,11 @@ class Entity extends GameObject{
         setTimeout(() => {
             this.posX = 10000;
             this.posY = 10000;
-            GameManager.allEntities.pop(this);
+
+            let index = GameManager.allEntities.indexOf(this);
+            if(index >= 0){
+                GameManager.allEntities.splice(index, 1);
+            }
             this.Entity = null;
         }, 1000);
     }

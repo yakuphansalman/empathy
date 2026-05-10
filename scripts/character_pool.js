@@ -15,7 +15,7 @@ class Knight0 extends Entity{
     static resY = 64;
     static speed = 15;
     constructor(posX, posY){
-        super("Knight0", posX, posY, 64, 64, 100, 1.5, 10, 1.0, 10, 4, 150, "Knight0");
+        super("Knight0", posX, posY, 24, 64, 100, 1.5, 10, 1.0, 10, 4, 150, "Knight0");
         this.animation = {
             // Format: Path, frameWidth, frameHeight, column, row, totalSquare, speed, loop
             idle: new Animation( this.src + ANIM_STATES.IDLE, Knight0.resX, Knight0.resY, 2, 4, 8, Knight0.speed, true),
@@ -35,7 +35,7 @@ class Knight1 extends Entity{
     static resY = 84;
     static speed = 25;
     constructor(posX, posY){
-        super("Knight1", posX, posY, 64, 42, 100, 1.5, 10, 1.0, 10, 3, 150, "Knight1");
+        super("Knight1", posX, posY, 24, 42, 100, 1.5, 10, 1.0, 10, 3, 150, "Knight1");
         this.animation = {
             // Format: Path, frameWidth, frameHeight, column, row, totalSquare, speed, loop
             idle: new Animation( this.src + ANIM_STATES.IDLE, Knight1.resX, Knight1.resY, 7, 1, 7, Knight1.speed, true),
@@ -54,7 +54,7 @@ class Knight2 extends Entity{
     static resY = 64;
     static speed = 25;
     constructor(posX, posY){
-        super("Knight2", posX, posY, 64, 64, 100, 1.5, 10, 1.0, 10, 4, 150, "Knight2");
+        super("Knight2", posX, posY, 30, 64, 100, 1.5, 10, 1.0, 10, 4, 150, "Knight2");
         this.animation = {
             // Format: Path, frameWidth, frameHeight, column, row, totalSquare, speed, loop
             idle: new Animation( this.src + ANIM_STATES.IDLE, Knight2.resX, Knight2.resY, 4, 1, 4, Knight2.speed, true),
@@ -74,7 +74,7 @@ class Knight3 extends Entity{
     static resY = 96;
     static speed = 25;
     constructor(posX, posY){
-        super("Knight3", posX, posY, 64, 64, 100, 1.5, 10, 1.0, 10, 2, 150, "Knight3");
+        super("Knight3", posX, posY, 30, 64, 100, 1.5, 10, 1.0, 10, 2, 150, "Knight3");
         this.animation = {
             // Format: Path, frameWidth, frameHeight, column, row, totalSquare, speed, loop
             idle: new Animation( this.src + ANIM_STATES.IDLE, Knight3.resX, Knight3.resY, 5, 1, 5, Knight3.speed, true),
@@ -92,7 +92,7 @@ class Samurai0 extends Entity{
     static resY = 96;
     static speed = 25;
     constructor(posX, posY){
-        super("Samurai0", posX, posY, 96, 64, 100, 1.5, 10, 1.0, 10, 1, 150, "Samurai0");
+        super("Samurai0", posX, posY, 24, 64, 100, 1.5, 15, 1.0, 10, 1, 150, "Samurai0");
         this.animation = {
             // Format: Path, frameWidth, frameHeight, column, row, totalSquare, speed, loop
             idle: new Animation( this.src + ANIM_STATES.IDLE, Samurai0.resX, Samurai0.resY, 10, 1, 10, Samurai0.speed, true),
@@ -110,7 +110,7 @@ class Warrior0 extends Entity{
     static resY = 162;
     static speed = 25;
     constructor(posX, posY){
-        super("Warrior0", posX, posY, 81, 40, 100, 1.5, 10, 1.0, 10, 3, 150, "Warrior0");
+        super("Warrior0", posX, posY, 36, 40, 100, 1.5, 15, 1.0, 10, 3, 150, "Warrior0");
         this.animation = {
             // Format: Path, frameWidth, frameHeight, column, row, totalSquare, speed, loop
             idle: new Animation( this.src + ANIM_STATES.IDLE, Warrior0.resX, Warrior0.resY, 10, 1, 10, Warrior0.speed, true),
@@ -130,7 +130,7 @@ class Warrior1 extends Entity{
     static resY = 93;
     static speed = 25;
     constructor(posX, posY){
-        super("Warrior1", posX, posY, 124, 45, 100, 1.5, 10, 1.0, 10, 3, 150, "Warrior1");
+        super("Warrior1", posX, posY, 24, 45, 100, 1.5, 10, 1.0, 10, 3, 150, "Warrior1");
         this.animation = {
             // Format: Path, frameWidth, frameHeight, column, row, totalSquare, speed, loop
             idle: new Animation( this.src + ANIM_STATES.IDLE, Warrior1.resX, Warrior1.resY, 37, 1, 37, Warrior1.speed, true),
@@ -150,7 +150,7 @@ class Warrior2 extends Entity{
     static resY = 90;
     static speed = 25;
     constructor(posX, posY){
-        super("Warrior2", posX, posY, 124, 90, 100, 1.5, 10, 1.0, 10, 1, 150, "Warrior2");
+        super("Warrior2", posX, posY, 30, 90, 100, 1.5, 10, 1.0, 10, 1, 150, "Warrior2");
         this.animation = {
             // Format: Path, frameWidth, frameHeight, column, row, totalSquare, speed, loop
             idle: new Animation( this.src + ANIM_STATES.IDLE, Warrior2.resX, Warrior2.resY, 4, 1, 4, Warrior2.speed, true),
@@ -168,7 +168,7 @@ class Warrior3 extends Entity{
     static resY = 96;
     static speed = 25;
     constructor(posX, posY){
-        super("Warrior3", posX, posY, 48, 96, 100, 1.5, 10, 1.0, 10, 1, 150, "Warrior3");
+        super("Warrior3", posX, posY, 24, 96, 100, 1.5, 10, 1.0, 10, 1, 150, "Warrior3");
         this.animation = {
             // Format: Path, frameWidth, frameHeight, column, row, totalSquare, speed, loop
             idle: new Animation( this.src + ANIM_STATES.IDLE, Warrior3.resX, Warrior3.resY, 4, 1, 4, Warrior3.speed, true),
@@ -186,7 +186,7 @@ class Demon0 extends Entity{
     static resY = 128;
     static speed = 25;
     constructor(posX, posY){
-        super("Demon0", posX, posY, 64, 36, 100, 1.5, 10, 1.0, 10, 1, 150, "Demon0");
+        super("Demon0", posX, posY, 36, 36, 100, 1.5, 10, 1.0, 10, 1, 150, "Demon0");
         this.animation = {
             // Format: Path, frameWidth, frameHeight, column, row, totalSquare, speed, loop
             idle: new Animation( this.src + ANIM_STATES.IDLE, Demon0.resX, Demon0.resY, 6, 1, 6, Demon0.speed, true),
@@ -203,7 +203,7 @@ class Monk0 extends Entity{
     static resY = 60;
     static speed = 25;
     constructor(posX, posY){
-        super("Monk0", posX, posY, 50, 48, 100, 1.5, 10, 1.0, 25, 2, 150, "Monk0");
+        super("Monk0", posX, posY, 24, 64, 100, 1.5, 10, 1.0, 25, 2, 150, "Monk0");
         this.animation = {
             // Format: Path, frameWidth, frameHeight, column, row, totalSquare, speed, loop
             idle: new Animation( this.src + ANIM_STATES.IDLE, Monk0.resX, Monk0.resY, 4, 1, 4, Monk0.speed, true),
@@ -221,7 +221,7 @@ class Hero0 extends Entity{
     static resY = 200;
     static speed = 25;
     constructor(posX, posY){
-        super("Hero0", posX, posY, 64, 64, 100, 1.5, 10, 1.0, 20, 2, 150, "Hero0");
+        super("Hero0", posX, posY, 30, 64, 100, 1.5, 10, 1.0, 20, 2, 150, "Hero0");
         this.animation = {
             // Format: Path, frameWidth, frameHeight, column, row, totalSquare, speed, loop
             idle: new Animation( this.src + ANIM_STATES.IDLE, Hero0.resX, Hero0.resY, 4, 1, 4, Hero0.speed, true),
@@ -240,7 +240,7 @@ class King0 extends Entity{
     static resY = 111;
     static speed = 25;
     constructor(posX, posY){
-        super("King0", posX, posY, 50, 96, 100, 1.5, 10, 1.0, 20, 3, 150, "King0");
+        super("King0", posX, posY, 36, 96, 100, 1.5, 10, 1.0, 20, 3, 150, "King0");
         this.animation = {
             // Format: Path, frameWidth, frameHeight, column, row, totalSquare, speed, loop
             idle: new Animation( this.src + ANIM_STATES.IDLE, King0.resX, King0.resY, 8, 1, 8, King0.speed, true),
