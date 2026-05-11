@@ -14,43 +14,13 @@ class AI{
         this.currentState = AI_STATE.CHASE;
     }
 
-    getClosestPatrolPoint(){
+    get closestPatrolPoint(){
         if(GameManager.allPatrolPoints.length === 0){ return null;}
         let closestValue = Infinity;
         let closest = GameManager.allPatrolPoints[0];
         GameManager.allPatrolPoints.forEach(point => {
             let delta = Math.abs(point.posX - this.entity.posX);
             if(delta < closestValue){ closest = point; closestValue = delta;}
-        });
-        return closest;
-    }
-    get obstacleBelow(){
-        if(GameManager.allObstacles.length === 0){ return null;}
-        let closestValue = Infinity;
-        let closest = GameManager.allObstacles[0];
-        GameManager.allObstacles.forEach(obstacle => {
-            // Compare centers
-            if(obstacle.posY + obstacle.height/2 < this.entity.posY + this.entity.height/2){
-                return;
-            }
-            let obsCenter = obstacle.posX + (obstacle.width/2);
-            let delta = Math.abs(obsCenter - this.center);
-            if(delta < closestValue){ closest = obstacle; closestValue = delta;}
-        });
-        return closest;
-    }
-    get obstacleAbove(){
-        if(GameManager.allObstacles.length === 0){ return null;}
-        let closestValue = Infinity;
-        let closest = GameManager.allObstacles[0];
-        GameManager.allObstacles.forEach(obstacle => {
-            // Compare centers
-            if(obstacle.posY + obstacle.height/2 > this.entity.posY + this.entity.height/2){
-                return;
-            }
-            let obsCenter = obstacle.posX + (obstacle.width/2);
-            let delta = Math.abs(obsCenter - this.center);
-            if(delta < closestValue){ closest = obstacle; closestValue = delta;}
         });
         return closest;
     }
@@ -70,21 +40,21 @@ class AI{
             this.entity.applyForce(this.entity.facingRight*this.entity.speedX, 0);
         }
 
-        if(this.currentState === AI_STATE.PATROL){ return;}
         let collision = this.entity.physics.collisionDir === 0 || this.entity.physics.collisionDir === 1;// Collided by left or right?
         if(collision && this.entity.physics.isGrounded){
             this.entity.changeState("jump");
             this.entity.applyForce(0, -5.0);
         }
+
     }
-    lastKnownPosX = null;
+    lastKnownTarget = null;
     stuckTimer = 0;
 
     think(){
         // Target has to be null every frame, so if there's no target in the scene or in the sight, this entity will try to chase the unseen
         this.target = null;
-        // Get closest patrol point
-        let closestPatrolPoint = this.getClosestPatrolPoint();
+        // En yakın devriye noktasına atama yapıyoruz ki her çağrıda tekrar tekrar hesaplanmasın
+        let point = this.closestPatrolPoint;
         // Is enemy object visible?
         GameManager.allEntities.forEach(target => {
             if(target === this.entity){ return;}
@@ -117,18 +87,26 @@ class AI{
                     create = false;
                 }
             });
+            if(GameManager.checkVisibility(this.entity, this.target)){
+                create = false;
+            }
             if(create){
                 new PatrolPoint(newPatrolX, this.entity.posY, 150);
             }
             this.entity.facingRight = reverseDir;
             this.stuckTimer = 0;
 
-            this.lastKnownPosX = null;
+            this.lastKnownTarget = null;
         }
         // Chase and Attack
         else if(this.target !== null && GameManager.checkVisibility(this.entity, this.target)){
             this.currentState = AI_STATE.CHASE;
-            this.lastKnownPosX = this.target.posX + (this.target.width / 2); // Save last known position
+            // Save last known position
+            this.lastKnownTarget = {
+                posX: this.target.posX + (this.target.width / 2),
+                posY: this.target.posY + (this.target.height / 2),
+                obs: this.target.obstacleBelow
+            }; 
             let maxReach = this.entity.width/2 + (this.target.width/2) + this.entity.attackRange;
             if(GameManager.toleratedOverlap(maxReach, this.entity, this.target)){
                 let directionToTarget = this.target.posX - this.entity.posX;
@@ -137,13 +115,13 @@ class AI{
                 this.currentState = AI_STATE.ATTACK;
             }
         }
-        else if(this.lastKnownPosX !== null){
+        else if(this.lastKnownTarget !== null){
             this.currentState = AI_STATE.CHASE;
         }
         // Return and Patrol 
-        else if(closestPatrolPoint !== null){
-            let patrolBoundRight = closestPatrolPoint.posX + closestPatrolPoint.range;
-            let patrolBoundLeft = closestPatrolPoint.posX - closestPatrolPoint.range;
+        else if(point !== null){
+            let patrolBoundRight = point.posX + point.range;
+            let patrolBoundLeft = point.posX - point.range;
             if(this.center < patrolBoundLeft || this.center > patrolBoundRight){
                 this.currentState = AI_STATE.RETURN;
             }
@@ -157,24 +135,40 @@ class AI{
     }
 
     act(){
-        let closestPoint = this.getClosestPatrolPoint();
+        let point = this.closestPatrolPoint;
         if(this.currentState === AI_STATE.ATTACK){
             this.entity.attack();
         }
         else if(this.currentState === AI_STATE.CHASE){
+            let entityCenterY = this.entity.posY - this.entity.height/2;
+            let offset = 25.0; // Bu offset değeri engellerin sağından veya solundan ne kadar uzak olduğunu belirtir.
+            let obs = null; // Hedefin altındaki engel.
+            let leftBelow = false; let rightBelow = false; // Bu varlık hedefin altındaki engellerin sağ veya sol konumuna yaklaştı mı?
             if(this.target !== null){
-                let entityCenterY = this.entity.posY - this.entity.height/2;
                 let targetCenterY = this.target.posY - this.target.height/2;
-                if(targetCenterY < entityCenterY && !GameManager.checkVisibility(this.entity, this.target)){
-                    this.entity.jump(15.0, this.entity.physics.isGrounded);
+                if(targetCenterY < entityCenterY && GameManager.checkVisibility(this.entity, this.target)){ // Hedef görüş menzilinde ve yukarıda ise
+                    obs = this.target.obstacleBelow;
+                    leftBelow = this.entity.posX > obs.posX - offset && this.entity.posX < obs.posX;
+                    rightBelow = this.entity.posX < obs.posX + obs.width + offset && this.entity.posX > obs.posX + obs.width;
+                    if(leftBelow || rightBelow){// Bu varlık engele sağdan veya soldan yaklaşırsa
+                        if(this.entity.physics.isGrounded){this.entity.physics.applyForce(0, -25.0)}
+                    } 
                     this.lastKnownPosX = null;
                 }
                 this.move(this.target.posX + this.target.width/2);
             }
-            else if(this.lastKnownPosX !== null){
-                this.move(this.lastKnownPosX);
-                if(Math.abs(this.lastKnownPosX - this.entity.posX - this.entity.width/2) < this.tolerance){
-                    this.lastKnownPosX = null;
+            else if(this.lastKnownTarget !== null){
+                if(this.lastKnownTarget.posY < entityCenterY){
+                    obs = this.lastKnownTarget.obs;
+                    leftBelow = this.entity.posX > obs.posX - offset && this.entity.posX < obs.posX;
+                    rightBelow = this.entity.posX < obs.posX + obs.width + offset && this.entity.posX > obs.posX + obs.width;
+                    if(leftBelow || rightBelow){
+                        if(this.entity.physics.isGrounded){this.entity.physics.applyForce(0, -25.0)}
+                    }
+                }
+                this.move(this.lastKnownTarget.posX);
+                if(Math.abs(this.lastKnownTarget.posX - this.center) < this.tolerance){
+                    this.lastKnownTarget = null;
                 }
                 
             }
@@ -183,7 +177,7 @@ class AI{
             }
         }
         else if(this.currentState === AI_STATE.PATROL){
-            let point = this.getClosestPatrolPoint();
+            let point = this.closestPatrolPoint;
             let rightBound = point.posX + point.range;
             let leftBound = point.posX - point.range;
 
@@ -198,7 +192,7 @@ class AI{
             this.move(targetEdge);
         }
         else if(this.currentState === AI_STATE.RETURN){
-            this.move(closestPoint.posX);
+            this.move(point.posX);
         }
     }
 

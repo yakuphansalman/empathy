@@ -15,7 +15,7 @@ class Knight0 extends Entity{
     static resY = 64;
     static speed = 15;
     constructor(posX, posY){
-        super("Knight0", posX, posY, 24, 64, 100, 1.5, 10, 1.0, 10, 4, 150, "Knight0");
+        super("Knight0", posX, posY, 24, 64, 100, 1.5, 10, 1.0, 20, 4, 200, "Knight0");
         this.animation = {
             // Format: Path, frameWidth, frameHeight, column, row, totalSquare, speed, loop
             idle: new Animation( this.src + ANIM_STATES.IDLE, Knight0.resX, Knight0.resY, 2, 4, 8, Knight0.speed, true),

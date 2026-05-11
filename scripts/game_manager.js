@@ -40,7 +40,7 @@ class GameManager {
         //new Obstacle(800, 580, 400, 20);//Short Obstacle
 
     }
-        */static initScene() {
+        *//*static initScene() {
     // =========================================================
     // ANA KARAKTER (PLAYER)
     // =========================================================
@@ -105,7 +105,7 @@ class GameManager {
     new Warrior0(7300, 250); // Kralın sağ muhafızı
 
     new PatrolPoint(7000, 350, 400); // Kralın taht odası devriyesi
-}
+}*/
       /*  //AI JUMP TEST 
     static initScene(){
         this.current = new Knight0(250, 425);
@@ -122,6 +122,17 @@ class GameManager {
         new PatrolPoint(1200, 625, 300);
     }
 */
+    /* AI LOGIC TEST */
+    static initScene(){
+        this.current = new Knight0(-50,600);
+        new Obstacle(-50, 600, 100, 20);
+        new Knight0(0,700);
+        new PatrolPoint(0,700,250);
+        new Obstacle(-500,700, 10000, 20);
+
+        new Obstacle(-375, 600, 100, 200);
+        new Obstacle(275, 600, 100, 200);
+    }
     //Checking inputs
     static checkInput() {
         if(this.current.isDead === true){ return;}

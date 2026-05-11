@@ -24,6 +24,39 @@ class Entity extends GameObject {
 
         GameManager.addEntity(this);
     }
+    
+    get obstacleBelow(){
+        if(GameManager.allObstacles.length === 0){ return null;}
+        let closestValue = Infinity;
+        let closest = GameManager.allObstacles[0];
+        GameManager.allObstacles.forEach(obstacle => {
+            // Compare centers
+            if(obstacle.posY + obstacle.height/2 < this.posY + this.height/2){
+                return;
+            }
+            let obsCenter = obstacle.posX + (obstacle.width/2);
+            let center = this.posX + this.width/2;
+            let delta = Math.abs(obsCenter - center);
+            if(delta < closestValue){ closest = obstacle; closestValue = delta;}
+        });
+        return closest;
+    }
+    get obstacleAbove(){
+        if(GameManager.allObstacles.length === 0){ return null;}
+        let closestValue = Infinity;
+        let closest = GameManager.allObstacles[0];
+        GameManager.allObstacles.forEach(obstacle => {
+            // Compare centers
+            if(obstacle.posY + obstacle.height/2 > this.posY + this.height/2){
+                return;
+            }
+            let obsCenter = obstacle.posX + (obstacle.width/2);
+            let center = this.posX + this.width/2
+            let delta = Math.abs(obsCenter - center);
+            if(delta < closestValue){ closest = obstacle; closestValue = delta;}
+        });
+        return closest;
+    }
 
 
     changeState(newState) {
@@ -105,15 +138,38 @@ class Entity extends GameObject {
         }
 
         if (GameManager.debugMode) {
+            /* COLLIDER */
             ctx.strokeStyle = "#00FF00";
-            ctx.lineWidth = 1;       // Çizgi kalınlığı
+            ctx.lineWidth = 1;
             
-            // Merkezde olduğumuz için çizime sol üstten (-width/2, -height/2) başlıyoruz
             ctx.strokeRect(-this.width / 2, -this.height / 2, this.width, this.height);
             
-            // İstersen merkeze ufak bir nokta da koyabilirsin (Yapay Zeka takibi için faydalı)
             ctx.fillStyle = "yellow";
             ctx.fillRect(-2, -2, 4, 4); 
+
+            /* VISION RANGE */
+            ctx.beginPath();
+            ctx.strokeStyle = "#0088FF";
+            ctx.lineWidth = 1;
+
+            let startAngle = this.facingRight === 1 ? -Math.PI / 2 : Math.PI / 2;
+            let endAngle = this.facingRight === 1 ? Math.PI / 2 : (3 * Math.PI) / 2;
+
+            ctx.arc(0, 0, this.visionRange, startAngle, endAngle, false);
+
+            ctx.stroke();
+
+            /* ATTACK RANGE */
+            ctx.beginPath();
+            ctx.strokeStyle = "#FF2211";
+            ctx.lineWidth = 1;
+            let attackCenterX = (this.width / 2) * this.facingRight;
+
+            ctx.arc(attackCenterX, 0, this.attackRange, startAngle, endAngle, false);
+            ctx.lineTo(attackCenterX, 0);
+            ctx.closePath();
+
+            ctx.stroke();
         }
 
         // Apply specific offsets (Mushrooms will be 0, Player will be -15)
