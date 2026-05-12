@@ -11,6 +11,7 @@ class Entity extends GameObject {
         this.width = width;
         this.height = height;
         this.health = health;
+        this.maxHealth = health;
         this.speedX = speedX;
         this.damage = damage;
         this.attackSpeed = attackSpeed;
@@ -81,6 +82,7 @@ class Entity extends GameObject {
     update() {
         //this.checkFlip();
         if(Animation.isReversed){ return;}
+        if(this.posY > 1000){ this.die();}
         this.checkStun();
 
         if (this.animation && this.animation[this.currentState]) {
@@ -114,11 +116,36 @@ class Entity extends GameObject {
     draw(ctx) {
         ctx.save();
 
+        
 
 
         let centerX = this.posX + (this.width / 2) - Camera.posX;
         let centerY = this.posY + (this.height / 2) - Camera.posY;
         ctx.translate(centerX, centerY);
+
+        if (!this.isDead && this.health > 0) {
+            let barWidth = this.width; // Barın genişliği karakterin genişliği kadar olsun
+            let barHeight = 6;         // Barın kalınlığı
+            let barX = -barWidth / 2;  // Tam ortalamak için genişliğin yarısı kadar sola kaydır
+            let barY = -this.height / 2 - 20; // Karakterin kafasının biraz üzerine yerleştir
+
+            // A) Arka Plan (Kırmızı - Kaybedilen Can)
+            ctx.fillStyle = "#FF0000";
+            ctx.fillRect(barX, barY, barWidth, barHeight);
+
+            // B) Ön Plan (Yeşil - Mevcut Can Yüzdesi)
+            // Kalan canın yüzdesini hesapla ve barın genişliğine uyarla
+            let healthRatio = Math.max(0, this.health / this.maxHealth); 
+            let currentHealthWidth = barWidth * healthRatio;
+            
+            ctx.fillStyle = "#00FF00";
+            ctx.fillRect(barX, barY, currentHealthWidth, barHeight);
+
+            // C) Çerçeve (Siyah - Daha şık durması için)
+            ctx.strokeStyle = "#000000";
+            ctx.lineWidth = 1;
+            ctx.strokeRect(barX, barY, barWidth, barHeight);
+        }
 
         if (GameManager.current === this) {
             ctx.fillStyle = "#00FF00";

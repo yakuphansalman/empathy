@@ -2,7 +2,7 @@ class Camera{
     static posX = 0.0; static posY = 0.0;
 
     static offsetX = 640.0; 
-    static offsetY = 520.0;
+    static offsetY = 420.0;
 
     static lookAhead = 200.0;
     static zoom = 1.2;
@@ -16,7 +16,7 @@ class Camera{
         let targetX = centerX + (this.lookAhead*entity.facingRight);
         let targetY = entity.posY - this.offsetY;
 
-        let lerpSpeed = 0.0023;
+        let lerpSpeed = 0.0035;
 
         this.posX += (targetX - this.posX)*lerpSpeed;
         this.posY += (targetY - this.posY)*lerpSpeed;

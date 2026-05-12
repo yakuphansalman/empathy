@@ -87,7 +87,7 @@ class AI{
                     create = false;
                 }
             });
-            if(GameManager.checkVisibility(this.entity, this.target)){
+            if(this.target !== null && GameManager.checkVisibility(this.entity, this.target)){
                 create = false;
             }
             if(create){
