@@ -11,43 +11,40 @@ window.addEventListener('keydown', (e) => {
     }
 });
 
-// Wait for EVERYTHING to load before starting the game
+// Oyun başlamadan önce her şeyin yüklendiğinden emin ol
 window.onload = function () {
 
-    // Define the start function inside onload
+    // Start fonksiyonu içindekileri sadece bir kere çalıştırır
     function start() {
         LevelManager.loadTheme(LEVELS.FOREST);
 
-        // Make sure to initialize your GameManager here!
+        // Sahneyi ilk açılışta başlat
         if (GameManager.initScene) {
             GameManager.initScene();
         }
     }
 
-    // Define the update function inside onload
+    // Update fonksiyonu her karede çalışır
     function update() {
         ctx.clearRect(0, 0, cvs.width, cvs.height);
-
-        // ── 1. Background (parallax, sky fallback) ──
-        LevelManager.drawBackground(ctx, cvs);
-
-        // ── 2. Game logic (physics, AI, input) ──
-        GameManager.update(ctx);
-
-        // ── 5. Debug line ──
-        GameManager.drawConnectionLine(ctx);
-
-        // ── 6. HUD: theme selector ──
-        LevelManager.drawHUD(ctx, cvs);
 
         ctx.save();
         ctx.translate(cvs.width/2, cvs.height/2);
         ctx.scale(Camera.zoom, Camera.zoom);
         ctx.translate(-cvs.width/2, -cvs.height/2);
+
+        // ── 1. Background (parallax, sky fallback) ──
+        LevelManager.drawBackground(ctx, cvs);
+
+        // Yönetici sınıfı oyunu her kare başına kontrol eder
+        GameManager.update(ctx);
+
+
+        
+
+        
         
         ctx.restore();
-        // ── 5. Debug line ──
-        GameManager.drawConnectionLine(ctx);
 
         // ── 6. HUD: theme selector ──
         LevelManager.drawHUD(ctx, cvs);

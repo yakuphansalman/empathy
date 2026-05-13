@@ -1,8 +1,10 @@
 class GameManager {
-    static debugMode = true;
+    static debugMode = false;
 
+    // Oyuncunun kontrol ettiği varlık
     static current;
     
+    // Objeleri tutan diziler
     static allGameObjects = [];
     static allEntities = [];
     static allObstacles = [];
@@ -10,6 +12,7 @@ class GameManager {
     static allEnemies = [];
     static allPatrolPoints = [];
 
+    // Diziye obje ekleme fonksiyonları
     static addGameObject(go) {
         this.allGameObjects.push(go);
     }
@@ -42,225 +45,129 @@ class GameManager {
 
     }
         */  
-
-
-    /*
     static initScene() {
-        // =========================================================
-        // 1. ANA KARAKTER (PLAYER) - DROP NOKTASI (Orta İrtifa)
-        // =========================================================
-        this.current = new Hero0(1500, -600); 
+        let sceneWidth = 6500;
+        // Başlangıç: 500, 700
+        this.current = new Knight2(5500, 700);
 
-        // =========================================================
-        // 2. ARENA SINIRLARI (Orta Yükseklikte Duvarlar)
-        // =========================================================
-        new Obstacle(-100, 1000, 3200, 200); // Zemin Kat
-        
-        // Duvarları Y ekseninde -800'e kadar uzattık
-        new Obstacle(-100, -800, 100, 2000); // Sol Ölüm Duvarı
-        new Obstacle(3000, -800, 100, 2000); // Sağ Ölüm Duvarı
+        // Yeryüzü
+        new Obstacle(-500, 700, 5100, 500);
+        new Obstacle(5300, 600, 3500, 600);
+        // Sol ana engel
+        new Obstacle(0, 0, 400, 700);
+        // Sağ ana engel
+        new Obstacle(sceneWidth, 0, 3000, 700);
 
-        // =========================================================
-        // 3. ÇATIŞMA PLATFORMLARI (Dengeli Dağılım)
-        // =========================================================
-        // Zemin ve 1. Kat (800 - 600)
-        new Obstacle(300, 800, 400, 20);
-        new Obstacle(1100, 800, 800, 20); // Ana kanlı meydan
-        new Obstacle(2300, 800, 400, 20);
-        
-        new Obstacle(100, 600, 300, 20);
-        new Obstacle(800, 600, 400, 20);
-        new Obstacle(1800, 600, 400, 20);
-        new Obstacle(2600, 600, 300, 20);
+        // Birinci bölge
+            new Obstacle(1000, 600, 200, 200);
 
-        // 2. Kat (400 - 150)
-        new Obstacle(500, 400, 500, 20);
-        new Obstacle(1500, 350, 600, 20); // Orta büyük platform
-        new Obstacle(2400, 400, 300, 20);
+            new Obstacle(1900, 620, 200, 20);
+            new PatrolPoint(2000, 700, 150);
+            new Warrior0(2000, 700);
 
-        new Obstacle(200, 150, 400, 20);
-        new Obstacle(1200, 100, 600, 20);
-        new Obstacle(2300, 150, 500, 20);
+        // İkinci bölge
+            new Obstacle(2900, 600, 200, 20);
+            new Obstacle(3100, 500, 200, 20);
+            new Obstacle(3300, 400, 200, 20);
+            new Obstacle(3100, 300, 200, 20);
+            new Obstacle(3300, 200, 800, 20);
 
-        // 3. Kat ve Zirve (-100 - -400)
-        new Obstacle(700, -100, 400, 20);
-        new Obstacle(1900, -100, 400, 20);
+            new PatrolPoint(3450, 700, 250);
+            new Samurai0(3450, 700);
 
-        new Obstacle(300, -350, 500, 20);
-        new Obstacle(2200, -350, 500, 20);
-        
-        // Zirve Tahtı
-        new Obstacle(1300, -400, 400, 20);
+            // Büyük engel
+            new Obstacle(4200, 200, 400, 700);
 
-        // =========================================================
-        // 4. BATTLE ROYALE - GLADYATÖRLER
-        // =========================================================
-        const enemyCount = 50; // Alan biraz küçüldüğü için sayıyı 50'ye çektik
-        
-        for (let i = 0; i < enemyCount; i++) {
-            let rx = Math.floor(Math.random() * 2800) + 100;
-            // Düşmanlar -500 (zirve hizası) ile 800 (zemin) arasında dağılsın (1300 piksel aralık)
-            let ry = Math.floor(Math.random() * 1300) - 500; 
+            new Obstacle(4700, 300, 160, 20);
+            new Obstacle(4900, 400, 220, 20);
+            new Obstacle(4700, 500, 170, 20);
+            new Obstacle(4900, 600, 210, 20);
 
-            let randType = Math.floor(Math.random() * 10);
-            
-            switch(randType) {
-                case 0: new Knight0(rx, ry); break;
-                case 1: new Knight1(rx, ry); break;
-                case 2: new Knight2(rx, ry); break;
-                case 3: new Knight3(rx, ry); break;
-                case 4: new Samurai0(rx, ry); break;
-                case 5: new Warrior0(rx, ry); break;
-                case 6: new Warrior1(rx, ry); break;
-                case 7: new Warrior2(rx, ry); break;
-                case 8: new Monk0(rx, ry); break;
-                case 9: new Demon0(rx, ry); break;
+        // Üçüncü bölge
+            new Obstacle(5500, 500, 100, 100);
+
+            new Obstacle(5900, 500, 300, 20);
+            new PatrolPoint(6050, 600, 150);
+
+            new Knight0(6050, 500);
+            new Demon0(6050, 600);
+
+            // Son engel
+            new Obstacle(6200, 400, 250, 20);
+
+        // Ortam
+            // Bulutlar
+            let cloudCount = 150; 
+            for(let i = 0; i<cloudCount; i++){
+                let cloudPosX = Math.random()*(sceneWidth + 2000);
+                let cloudPosY = GameManager.randomApproachMax(300, 0, 1.7);
+                let cloudPosZ = (Math.random() * 0.2) + 0.2;
+                let cloudNumber = Math.floor(Math.random()*10);
+                new Cloud(cloudPosX, cloudPosY, cloudPosZ, cloudNumber);
             }
-        }
+            // Birinci yeryüzü için ağaçlar
+            let treeCount0 = 120;
+            for (let i = 0; i<treeCount0; i++){
+                let treePosX = 200 + Math.random()*4000;
+                let treePosY = 675;
+                let treePosZ = (Math.random() * 0.2) + 0.05;
+                let treeNumber = Math.floor(Math.random()*14);
+                let color = Math.floor(Math.random()*2);
+                let colors = ["g", "y"];
 
-        // Kral zirvede
-        new King0(1500, -450); 
+                new Tree(treePosX, treePosY, treePosZ, treeNumber, colors[color]);
 
-        // =========================================================
-        // 5. DEVRİYE NOKTALARI
-        // =========================================================
-        for(let i = 200; i < 2800; i += 400) {
-            new PatrolPoint(i, 800, 200);
-            new PatrolPoint(i, 350, 200);
-            new PatrolPoint(i, -100, 200);
-        }
-
-        // =========================================================
-        // 6. GÖKYÜZÜ VE BULUTLAR (Dengelenmiş Dağılım)
-        // =========================================================
-        // Bulutlar artık -800 ile +800 (toplam 1600 piksel) arasında yayılıyor
-        for (let x = -1000; x < 4000; x += 180) {
-            
-            // Katman 1
-            let y1 = Math.floor(Math.random() * 1600) - 800; 
-            let z1 = (Math.random() * 0.3) + 0.2; 
-            let type1 = Math.floor(Math.random() * 10); 
-            new Cloud(x, y1, z1, type1);
-
-            // Katman 2
-            let y2 = Math.floor(Math.random() * 1600) - 800; 
-            let z2 = (Math.random() * 0.3) + 0.6; 
-            let type2 = Math.floor(Math.random() * 10); 
-            let offsetX = Math.floor(Math.random() * 200); 
-            new Cloud(x + offsetX, y2, z2, type2);
-
-            // Katman 3
-            if (Math.random() > 0.4) {
-                let y3 = Math.floor(Math.random() * 1600) - 800; 
-                let z3 = (Math.random() * 0.5) + 0.4; 
-                let type3 = Math.floor(Math.random() * 10);
-                new Cloud(x - offsetX, y3, z3, type3);
             }
-        }
+            // Birinci yeryüzü için çalılar
+            let bushCount0 = 125;
+            for (let i = 0; i<bushCount0; i++){
+                let bushPosX = 200 + Math.random()*4000;
+                let bushPosY = 690;
+                let bushPosZ = (Math.random() * 0.08) + 0.0;
+                let bushNumber = Math.floor(Math.random()*15);
+                let color = Math.floor(Math.random()*2);
+                let colors = ["g", "y"];
+
+                new Bush(bushPosX, bushPosY, bushPosZ, bushNumber, colors[color]);
+            }
+            // İkinci yeryüzü için ağaçlar
+            let treeCount1 = 60;
+            for (let i = 0; i<treeCount1; i++){
+                let treePosX = 5700 + Math.random()*1200;
+                let treePosY = 575;
+                let treePosZ = (Math.random() * 0.2) + 0.05;
+                let treeNumber = Math.floor(Math.random()*14);
+                let color = Math.floor(Math.random()*2);
+                let colors = ["g", "y"];
+
+                new Tree(treePosX, treePosY, treePosZ, treeNumber, colors[color]);
+
+            }
+            // İkinci yeryüzü için çalılar
+            let bushCount1 = 60;
+            for (let i = 0; i<bushCount1; i++){
+                let bushPosX = 5500 + Math.random()*1200;
+                let bushPosY = 590;
+                let bushPosZ = (Math.random() * 0.08) + 0.0;
+                let bushNumber = Math.floor(Math.random()*15);
+                let color = Math.floor(Math.random()*2);
+                let colors = ["g", "y"];
+
+                new Bush(bushPosX, bushPosY, bushPosZ, bushNumber, colors[color]);
+            }
+
+            
+
+
     }
-
-
-
-    */
-    static initScene() {
-    // =========================================================
-    // ANA KARAKTER (PLAYER)
-    // =========================================================
-    this.current = new Knight0(100, 800); // Maceracı kahramanımız başlangıçta
-
-    // =========================================================
-    // BÖLGE 1: EĞİTİM VE TEMEL MUHAFIZLAR (Zemin Kat)
-    // =========================================================
-    // Ana Zemin
-    new Obstacle(-200, 864, 6000, 200); 
-    // Küçük Engeller ve Knight Serisi
-    new Knight0(800, 800);  // İlk karşılaşma: Temel Knight
-    new Obstacle(1200, 800, 150, 64);
-    new Knight1(1300, 700);  // Engelin üzerinde bekleyen Knight1
-    
-    new PatrolPoint(1800, 864, 300);
-    new Knight2(1800, 800); 
-    new Knight3(2000, 800); // Ağır Knight ikilisi
-
-    // =========================================================
-    // BÖLGE 2: SAMURAY BAHÇESİ VE WARRIOR KAMPI (Yatay İlerleme)
-    // =========================================================
-    new Obstacle(2500, 750, 400, 20); // Havada bir platform
-    new Samurai0(2600, 650); // Hızlı Samurai platformda devriye atıyor
-    new PatrolPoint(2700, 750, 150);
-
-    // Savaşçı barikatları
-    new Obstacle(3200, 800, 50, 64);
-    new Warrior0(3400, 800);
-    new Warrior1(3700, 800);
-    new Obstacle(3900, 750, 100, 114); // Yüksek bir duvar
-
-    // =========================================================
-    // BÖLGE 3: DEMON'S PIT VE MONK TAPINAĞI (Dikey Parkur)
-    // =========================================================
-    // Derin bir çukur ve üzerinde platformlar
-    new Obstacle(4200, 950, 800, 100); // Çukurun dibi
-    new Demon0(4500, 850); // Çukurun dibindeki devasa Demon0
-
-    // Yukarı tırmanış basamakları
-    new Obstacle(5100, 750, 200, 20);
-    new Warrior2(5150, 650);
-    
-    new Obstacle(5400, 600, 200, 20);
-    new Warrior3(5450, 500);
-
-    // Yüksek Tapınak Girişi
-    new Obstacle(5700, 450, 600, 20); 
-    new Monk0(5800, 350); // Tapınak koruyucusu Monk
-    new PatrolPoint(6000, 450, 200);
-
-    // =========================================================
-    // BÖLGE 4: KRALIN TAHT ODASI (Final Boss)
-    // =========================================================
-    // Devasa bir asma kat/taht platformu
-    new Obstacle(6500, 350, 1200, 500); // Kalın bir kale duvarı/zemin
-    
-    // Kral ve Elit Muhafızı
-    new King0(7000, 200);   // Final Boss: King0
-    new Knight3(6700, 250); // Kralın sol muhafızı
-    new Warrior0(7300, 250); // Kralın sağ muhafızı
-
-    new PatrolPoint(7000, 350, 400); // Kralın taht odası devriyesi
-
-
-    /* Enviroment */
-            /* Clouds */
-            for (let x = -500; x < 8500; x += 250) {
-        
-        // 1. ÖN PLAN BULUTLARI (Daha hızlı kayar, daha aşağıda olabilir)
-        // Yükseklik: 50 ile 350 arası | Derinlik: 0.3 ile 0.6 arası
-        let y1 = Math.floor(Math.random() * 300) + 50; 
-        let z1 = (Math.random() * 0.3) + 0.3; // posZ: 0.3 - 0.6
-        let type1 = Math.floor(Math.random() * 10); // 0-9 arası tip
-        new Cloud(x, y1, z1, type1);
-
-        // 2. ARKA PLAN BULUTLARI (Çok yavaş kayar, daha yüksekte olur)
-        // Yükseklik: 0 ile 200 arası | Derinlik: 0.7 ile 0.95 arası
-        let y2 = Math.floor(Math.random() * 400); 
-        let z2 = (Math.random() * 0.25) + 0.7; // posZ: 0.7 - 0.95
-        let type2 = Math.floor(Math.random() * 10); 
-        
-        // X koordinatına ufak bir rastgelelik katalım ki hepsi ip gibi dizilmiş durmasın
-        let offsetX = Math.floor(Math.random() * 150); 
-        new Cloud(x + offsetX, y2, z2, type2);
-
-        // 3. EKSTRA YOĞUNLUK (%50 İhtimalle 3. bir bulut katmanı)
-        if (Math.random() > 0.5) {
-            let y3 = Math.floor(Math.random() * 400); 
-            let z3 = (Math.random() * 0.4) + 0.5; // Orta-arka derinlik
-            let type3 = Math.floor(Math.random() * 10);
-            new Cloud(x - offsetX, y3, z3, type3);
-        }
+    static randomApproachMax(min, max, p = 2){
+        let bias = 1 - Math.pow(Math.random(), p);
+        return min + ((max - min)*bias);
     }
-    }
- /* // AI LOGIC TEST 
+ /*
+        // AI LOGIC TEST 
     static initScene(){
-        this.current = new Knight0(-50,600);
+        this.current = new Samurai0(-50,600);
         new Obstacle(-50, 600, 100, 20);
         new Knight0(0,700);
         new PatrolPoint(0,700,250);
@@ -268,12 +175,15 @@ class GameManager {
 
         new Obstacle(-375, 600, 100, 200);
         new Obstacle(275, 600, 100, 200);
+
+        new Hedgehog(-50, 550);
     }
-    */
-    //Checking inputs
+*/
+    // Girdi kontrolleri
     static checkInput() {
         if(this.current.isDead === true){ return;}
         if(this.current.isStunned){ return;}
+        // Zamanı geriye sar
         if (keys.KeyR) {
             for (let i = 0; i < this.allEntities.length; i++) {
                 this.allEntities[i].rewind();
@@ -288,7 +198,6 @@ class GameManager {
             }
 
             let isMoving = false;
-            /* Movement Controls */
             if (keys.KeyW) {
                 this.current.applyForce(0, -1);
                 isMoving = true;
@@ -297,6 +206,7 @@ class GameManager {
                 this.current.applyForce(0, 1);
                 isMoving = true;
             }
+            // Sola git
             if (keys.KeyA) {
                 this.current.applyForce(-1, 0);
                 this.current.checkFlip();
@@ -305,6 +215,7 @@ class GameManager {
                     this.current.changeState("run");
                 }
             }
+            // Sağa git
             if (keys.KeyD) {
                 this.current.applyForce(1, 0);
                 this.current.checkFlip();
@@ -313,14 +224,14 @@ class GameManager {
                     this.current.changeState("run");
                 }
             }
+            // Saldır
             if (keys.KeyE) {
                 this.current.attack(10.0);
             }
-            /* JumpLock prevents constant jumps 
-               IsGrounded checks the current character is grounded or not
-               Both condition is for jump the character */
-
+            // Zıpla
             if (keys.Space) {
+                // "JumpLock" sürekli zıplamaları önler
+                // "IsGrounded" varlığın yerde olma durumunu kontrol eder.
                 if (this.current.physics.isGrounded && !this.current.physics.jumpLock) {
                     this.current.physics.applyForce(0, -10);
                     this.current.changeState("jump");
@@ -330,13 +241,14 @@ class GameManager {
                 this.current.physics.jumpLock = true;
             } else if (!keys.Space) { this.current.physics.jumpLock = false; }
 
+            // Bu varlık havada ise animasyon zıplama durumuna geçsin
             if (!this.current.physics.isGrounded && currentState !== "jump") {
                 this.current.changeState("jump");
             } else if (this.current.physics.isGrounded && !this.current.isAttacking && !this.current.physics.moveable) {
                 this.current.changeState("idle");
             }
 
-            
+            // Karakter değiştir
             if (keys.KeyZ) {
                 let target = this.getClosestVisibleTarget();
 
@@ -359,7 +271,7 @@ class GameManager {
 
         return (ua >= 0 && ua <= 1) && (ub >= 0 && ub <= 1);
     }
-
+    // İki varlık arasındaki uzaklığı döndürür
     static getDistance(ent1, ent2) {
         let dx = (ent1.posX + ent1.width / 2) - (ent2.posX + ent2.width / 2);
         let dy = (ent1.posY + ent1.height / 2) - (ent2.posY + ent2.height / 2);
@@ -416,7 +328,7 @@ class GameManager {
         }
         return closestTarget;
     }
-
+    // Tolerasyona bağlı üst üste binme kontrolü
     static toleratedOverlap(tolerance, entity, target){
         return (this.getDistance(entity, target) < tolerance);
     }
@@ -443,6 +355,7 @@ class GameManager {
     }
 
     static update(ctx) {
+        // Girdi kontrolleri her kare başına yapılır
         this.checkInput();
         this.drawConnectionLine(ctx);
 
@@ -454,25 +367,26 @@ class GameManager {
             }
         });
 
-        
+        // Varlık çağrıları
         this.allEntities.forEach(entity => {
-            /* Physics calls */
-            entity.physics.update();
-            /* AI calls */
+            // Yapay zeka çağrıları
             if(entity !== this.current){
                 entity.ai.update();
             }
-            /* Animation calls */
+            // Varlık güncellemeleri
             if (entity.update) {
                 entity.update();
             }
+            // Varlık çizimleri
             if (entity.draw) {
                 entity.draw(ctx);
             }
         });
+        // Engellerin çizimleri
         this.allObstacles.forEach(obstacle => {
             obstacle.draw(ctx);
         });
+        // Debug mode çizimleri
         if(GameManager.debugMode){
             this.allPatrolPoints.forEach(point => {
                 if(point.draw){
@@ -486,6 +400,7 @@ class GameManager {
                 env.draw(ctx);
             }
         });
+        // Oyuncu varlık ölmediği sürece "Camera" oyuncuya odaklansın
         if(!this.current.isDead){
             Camera.focus(this.current);
         }

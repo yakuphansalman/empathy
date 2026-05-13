@@ -1,8 +1,8 @@
 const ENTITY_PATH = "./assets/entity/";
 
 class Entity extends GameObject {
-    facingRight = 1;
 
+    facingRight = 1;
     physics = new Physics(this, 0.77, 0.98, 3.5, 140.0, 1.0);
 
     constructor(name, posX, posY, width, height, health, speedX, damage, attackSpeed, attackRange, maxAttackState, visionRange, src) {
@@ -20,12 +20,11 @@ class Entity extends GameObject {
         this.posY -= this.height;
         this.isDead = false;
         this.maxAttackState = maxAttackState;
-
         this.ai = new AI(this);
-
         GameManager.addEntity(this);
     }
     
+    // "AI Entity"ler için altındaki engeli döndürür.
     get obstacleBelow(){
         if(GameManager.allObstacles.length === 0){ return null;}
         let closestValue = Infinity;
@@ -42,6 +41,7 @@ class Entity extends GameObject {
         });
         return closest;
     }
+    // "AI Entity"ler için üstündeki engeli döndürür.
     get obstacleAbove(){
         if(GameManager.allObstacles.length === 0){ return null;}
         let closestValue = Infinity;
@@ -60,6 +60,7 @@ class Entity extends GameObject {
     }
 
 
+    // Animasyon durumunu değiştirir.
     changeState(newState) {
         if (this.currentState === newState || this.currentState === "death") { return; }
 
@@ -81,10 +82,14 @@ class Entity extends GameObject {
     }
     update() {
         //this.checkFlip();
+        this.physics.update();
         if(Animation.isReversed){ return;}
+        // Bir varlık 1000px üstüne düşerse ölür
         if(this.posY > 1000){ this.die();}
+        // "Stun" kontrolü
         this.checkStun();
 
+        // Animasyon kontrolü
         if (this.animation && this.animation[this.currentState]) {
             this.animation[this.currentState].update();
 
@@ -102,8 +107,9 @@ class Entity extends GameObject {
     }
 
     applyForce(forceX, forceY) {
-        if (!this.physics.moveable) { return; }
+        if (!this.physics.moveable) { return; } 
 
+        // Hıza bağlı kuvvet uygula
         forceX *= 0.1 * this.speedX;
         this.physics.applyForce(forceX, forceY);
     }
@@ -116,11 +122,10 @@ class Entity extends GameObject {
     draw(ctx) {
         ctx.save();
 
-        
-
-
+        // "Camera"ya göre pozisyonu hizalama ve ortalama
         let centerX = this.posX + (this.width / 2) - Camera.posX;
         let centerY = this.posY + (this.height / 2) - Camera.posY;
+        // Canvas öteleme
         ctx.translate(centerX, centerY);
 
         if (!this.isDead && this.health > 0) {
@@ -164,6 +169,7 @@ class Entity extends GameObject {
             ctx.fill();                         // Fill the shape with color
         }
 
+        // "DebugMode" elemanlarını çizer.
         if (GameManager.debugMode) {
             /* COLLIDER */
             ctx.strokeStyle = "#00FF00";
@@ -211,17 +217,19 @@ class Entity extends GameObject {
     }
 
 
-    // Manages facing direction because of some inputs or ai calls
+    // Bazı girdiler veya AI çağrıları nedeniyle bakış yönünü günceller
     checkFlip() {
         let cond_l = this.physics.velocityX < 0 && this.facingRight > 0;
         let cond_r = this.physics.velocityX > 0 && this.facingRight < 0;
         if (cond_l || cond_r) { this.facingRight *= -1; }
     }
+    // Birden fazla "Attack" animasyonu olması sebebiyle saldırı kontrolü yapar
     get isAttacking() {
         if (!this.currentState) return false;
         return this.currentState.startsWith("attack");
 
     }
+
 
     stateHistory = [];  // Array to store past states
     maxHistory = 180;   // Store up to 3 seconds at 60 FPS
@@ -274,6 +282,7 @@ class Entity extends GameObject {
         }
     }
 
+    // Bir olaya bağlı bir kere zıplama komutu
     jump(force, event) {
         if (this.isStunned) { return; }
         if (event) {
@@ -285,7 +294,7 @@ class Entity extends GameObject {
             this.physics.jumpLock = false;
         }
     }
-    // Stun system
+    // Belirli süreliğine bu varlık sersemletilir
     stunDuration = 0;
     stunCount = 0;
     isStunned = false;
@@ -294,15 +303,19 @@ class Entity extends GameObject {
         this.stunDuration *= 60;
         this.stunCount = 0;
     }
+    // Süre kontrolü için her kare başına çağrılan kontrol fonksiyonu
     checkStun() {
         this.isStunned = this.stunCount < this.stunDuration;
         this.stunCount++;
     }
 
-    // Every entity can attack and take damage
-    lastAttack = Date.now();
+    // Bekleme süresi olan "Attack" fonskiyonu
+    // "Date.now()" fonskiyonu sürekli güncellenir ve "Attack" fonksiyonu bir çağrıya bağlı olduğundan birlikte kullanılır
+    lastAttack = Date.now();i
+    // Birden fazla saldırı fonksiyonu olabildiğinden bu seçimi "attackState" yapar
     attackState = 0;
     attack() {
+        // Bekleme süresi belirlenir
         let baseCooldown = 2000;
         let cooldown = baseCooldown * (100 - this.attackSpeed) / 100;
         let canAttack = Date.now() > (this.lastAttack + cooldown);
@@ -310,59 +323,73 @@ class Entity extends GameObject {
 
         SoundManager.play('./assets/music/attack_sounds.mp3', this, 0.6);
 
+        // Saldırı animasyonu durum döngüsü
         this.attackState %= this.maxAttackState;
+        // Animasyon durumunu değiştir
         this.changeState("attack" + this.attackState);
         this.lastAttack = Date.now();
+        // Saldıran varlıklar kısa bir süreliğine sersemler
         this.stun(0.75 + 1/this.attackSpeed);
         this.attackState++;
 
-
+        // Saldırı animasyonu başlar başlamaz diğer varlıklar hasar yememesi için bir zaman aşımı
         setTimeout(() => {
             for (let i = 0; i < GameManager.allEntities.length; i++) {
+                // Menzil içindeki tüm düşmanlar seçilir
                 let target = GameManager.allEntities[i];
+                // Bu varlık kendine hasar vermemeli
                 if (this === target) { continue; }
-                let deltaX = target.posX - this.posX;
-                let deltaY = target.posY - this.posY;
+                // Konum fark vektörleri
+                let deltaX = target.posX + target.width/2 - this.posX - this.width/2;
+                let deltaY = target.posY + target.height/2 - this.posY - this.height/2;
 
-                let maxReach = (this.width / 2) + (target.width / 2) + this.attackRange;
-
-                let inRangeX = Math.abs(deltaX) <= maxReach;
-                let inRangeY = Math.abs(deltaY) <= this.height;
-
+                // Bu varlığın en fazla vurabileceği menzil
+                let maxReachX = (this.width / 2) + (target.width / 2) + this.attackRange;
+                let maxReachY = (this.height / 2) + (target.height / 2);
+                // Menzil kontrolü
+                let inRangeX = Math.abs(deltaX) <= maxReachX;
+                let inRangeY = Math.abs(deltaY) <= maxReachY;
+                // Bakış yönüne bağlı varlık kontrolü
                 let isInFront = (deltaX * this.facingRight) >= 0 || Math.abs(deltaX) < (this.width / 2)
 
                 if (inRangeX && inRangeY && isInFront) {
                     target.takeDamage(this.damage, this.facingRight);
                 }
             }
-        }, 500 - (this.attackSpeed) * 0.5);// Timeout is for animation takeDamage sync
+        }, 500 - (this.attackSpeed) * 0.5);
     }
 
-    damageTaken = false;
+    // Hasar alma fonksiyonu
     takeDamage(damage, hitDirection) {
         this.health -= damage;
+        // Ölme koşulu
         if (this.health <= 0) {
             this.health = 0;
             this.die();
             return;
         }
-
+        // Hasar alma sesi
         SoundManager.play('./assets/music/hurt_sounds.mp3', this, 0.7);
-
+        // Hasar alma animasyonu
         if (this.animation["hurt"]) {
             this.changeState("hurt");
         }
-        this.stun(2);
-        let force = 1.0;
-        this.physics.velocityX = hitDirection * damage * force;
-        this.damageTaken = true;
+        // Hasar alan varlık alınan hasara bağlı sersemler 
+        this.stun(3*damage/100);
+        // Alınan hasara bağlı itme
+        this.physics.velocityX = hitDirection * damage;
     }
 
+    // Ölme fonksiyonu
     die() {
         this.isDead = true;
+        // Ölüm animasyonu
         this.changeState("death");
+        // Uzun bir süre durdur
         this.physics.stop(1000);
+        // Ölüm sesi
         SoundManager.play('./assets/music/death_sounds.mp3', this, 0.8);
+        // Belirli bir zaman aşımından sonra objeyi sahneden kaldır
         setTimeout(() => {
             this.posX = 10000;
             this.posY = 10000;
