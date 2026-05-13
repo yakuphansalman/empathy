@@ -54,7 +54,7 @@ class Bush extends Enviroment{
 
 class Tree extends Enviroment{
     constructor(posX, posY, posZ, number, color){
-        super(posX, posY, posZ, ENV_DIR + "tree/tree" + number + "" + color + ".png", 2);
+        super(posX, posY, posZ, ENV_DIR + "tree/tree" + number + "" + color + ".png", 3);
     }
 }
 class Cat extends Enviroment{

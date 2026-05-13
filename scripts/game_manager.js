@@ -29,6 +29,23 @@ class GameManager {
         this.allPatrolPoints.push(patrolPoint);
     }
 
+    static characterRoster = [
+        Knight0, Knight1, Knight2, Knight3,
+        Samurai0, Warrior0, Warrior1, Warrior2, Warrior3,
+        Demon0, Monk0, Hero0, King0
+    ];
+    static rosterIndex = 0;
+
+    static nextEntity(posX, posY){
+        let targetClass = this.characterRoster[this.rosterIndex];
+        let newEntity = new targetClass(posX, posY);
+
+        this.rosterIndex = (this.rosterIndex + 1) % this.characterRoster.length;
+
+        return newEntity;
+    }
+
+
     /* LEVEL_0
     
     static initScene(){
@@ -45,129 +62,175 @@ class GameManager {
 
     }
         */  
-    static initScene() {
-        let sceneWidth = 6500;
-        // Başlangıç: 500, 700
-        this.current = new Knight2(5500, 700);
+    static initScene(level) {
+        if(level === 0){
+            let sceneWidth = 6500;
+            this.current = new Knight2(500, 700);
 
-        // Yeryüzü
-        new Obstacle(-500, 700, 5100, 500);
-        new Obstacle(5300, 600, 3500, 600);
-        // Sol ana engel
-        new Obstacle(0, 0, 400, 700);
-        // Sağ ana engel
-        new Obstacle(sceneWidth, 0, 3000, 700);
+            // Yeryüzü
+            new Obstacle(-500, 700, 5100, 500);
+            new Obstacle(5300, 600, 3500, 600);
+            // Sol ana engel
+            new Obstacle(0, 0, 400, 700);
+            // Sağ ana engel
+            new Obstacle(sceneWidth, 0, 3000, 700);
 
-        // Birinci bölge
-            new Obstacle(1000, 600, 200, 200);
+            // Birinci bölge
+                new Obstacle(1000, 600, 200, 200);
 
-            new Obstacle(1900, 620, 200, 20);
-            new PatrolPoint(2000, 700, 150);
-            new Warrior0(2000, 700);
+                new Obstacle(1900, 620, 200, 20);
+                new PatrolPoint(2000, 700, 150);
+                new Warrior0(2000, 700);
 
-        // İkinci bölge
-            new Obstacle(2900, 600, 200, 20);
-            new Obstacle(3100, 500, 200, 20);
-            new Obstacle(3300, 400, 200, 20);
-            new Obstacle(3100, 300, 200, 20);
-            new Obstacle(3300, 200, 800, 20);
+            // İkinci bölge
+                new Obstacle(2900, 600, 200, 20);
+                new Obstacle(3100, 500, 200, 20);
+                new Obstacle(3300, 400, 200, 20);
+                new Obstacle(3100, 300, 200, 20);
+                new Obstacle(3300, 200, 800, 20);
 
-            new PatrolPoint(3450, 700, 250);
-            new Samurai0(3450, 700);
+                new PatrolPoint(3450, 700, 250);
+                new Samurai0(3450, 700);
 
-            // Büyük engel
-            new Obstacle(4200, 200, 400, 700);
+                // Büyük engel
+                new Obstacle(4200, 200, 400, 700);
 
-            new Obstacle(4700, 300, 160, 20);
-            new Obstacle(4900, 400, 220, 20);
-            new Obstacle(4700, 500, 170, 20);
-            new Obstacle(4900, 600, 210, 20);
+                new Obstacle(4700, 300, 160, 20);
+                new Obstacle(4900, 400, 220, 20);
+                new Obstacle(4700, 500, 170, 20);
+                new Obstacle(4900, 600, 210, 20);
 
-        // Üçüncü bölge
-            new Obstacle(5500, 500, 100, 100);
+            // Üçüncü bölge
+                new Obstacle(5500, 500, 100, 100);
 
-            new Obstacle(5900, 500, 300, 20);
-            new PatrolPoint(6050, 600, 150);
+                new Obstacle(5900, 500, 300, 20);
+                new PatrolPoint(6050, 600, 150);
 
-            new Knight0(6050, 500);
-            new Demon0(6050, 600);
+                new Knight0(6050, 500);
+                new Demon0(6050, 600);
 
             // Son engel
-            new Obstacle(6200, 400, 250, 20);
+                new Obstacle(6200, 400, 250, 20);
 
-        // Ortam
-            // Bulutlar
-            let cloudCount = 150; 
-            for(let i = 0; i<cloudCount; i++){
-                let cloudPosX = Math.random()*(sceneWidth + 2000);
-                let cloudPosY = GameManager.randomApproachMax(300, 0, 1.7);
-                let cloudPosZ = (Math.random() * 0.2) + 0.2;
-                let cloudNumber = Math.floor(Math.random()*10);
-                new Cloud(cloudPosX, cloudPosY, cloudPosZ, cloudNumber);
-            }
-            // Birinci yeryüzü için ağaçlar
-            let treeCount0 = 120;
-            for (let i = 0; i<treeCount0; i++){
-                let treePosX = 200 + Math.random()*4000;
-                let treePosY = 675;
-                let treePosZ = (Math.random() * 0.2) + 0.05;
-                let treeNumber = Math.floor(Math.random()*14);
-                let color = Math.floor(Math.random()*2);
-                let colors = ["g", "y"];
+            // Ortam
+                // Bulutlar
+                let cloudCount = 150; 
+                for(let i = 0; i<cloudCount; i++){
+                    let cloudPosX = Math.random()*(sceneWidth + 2000);
+                    let cloudPosY = GameManager.randomApproachMax(300, 0, 1.7);
+                    let cloudPosZ = (Math.random() * 0.2) + 0.2;
+                    let cloudNumber = Math.floor(Math.random()*10);
+                    new Cloud(cloudPosX, cloudPosY, cloudPosZ, cloudNumber);
+                }
+                // Birinci yeryüzü için ağaçlar
+                let treeCount0 = 120;
+                for (let i = 0; i<treeCount0; i++){
+                    let treePosX = 200 + Math.random()*4000;
+                    let treePosY = 675;
+                    let treePosZ = (Math.random() * 0.2) + 0.05;
+                    let treeNumber = Math.floor(Math.random()*14);
+                    let color = Math.floor(Math.random()*2);
+                    let colors = ["g", "y"];
 
-                new Tree(treePosX, treePosY, treePosZ, treeNumber, colors[color]);
+                    new Tree(treePosX, treePosY, treePosZ, treeNumber, colors[color]);
 
-            }
-            // Birinci yeryüzü için çalılar
-            let bushCount0 = 125;
-            for (let i = 0; i<bushCount0; i++){
-                let bushPosX = 200 + Math.random()*4000;
-                let bushPosY = 690;
-                let bushPosZ = (Math.random() * 0.08) + 0.0;
-                let bushNumber = Math.floor(Math.random()*15);
-                let color = Math.floor(Math.random()*2);
-                let colors = ["g", "y"];
+                }
+                // Birinci yeryüzü için çalılar
+                let bushCount0 = 125;
+                for (let i = 0; i<bushCount0; i++){
+                    let bushPosX = 200 + Math.random()*4000;
+                    let bushPosY = 690;
+                    let bushPosZ = (Math.random() * 0.08) + 0.0;
+                    let bushNumber = Math.floor(Math.random()*15);
+                    let color = Math.floor(Math.random()*2);
+                    let colors = ["g", "y"];
 
-                new Bush(bushPosX, bushPosY, bushPosZ, bushNumber, colors[color]);
-            }
-            // İkinci yeryüzü için ağaçlar
-            let treeCount1 = 60;
-            for (let i = 0; i<treeCount1; i++){
-                let treePosX = 5700 + Math.random()*1200;
-                let treePosY = 575;
-                let treePosZ = (Math.random() * 0.2) + 0.05;
-                let treeNumber = Math.floor(Math.random()*14);
-                let color = Math.floor(Math.random()*2);
-                let colors = ["g", "y"];
+                    new Bush(bushPosX, bushPosY, bushPosZ, bushNumber, colors[color]);
+                }
+                // İkinci yeryüzü için ağaçlar
+                let treeCount1 = 60;
+                for (let i = 0; i<treeCount1; i++){
+                    let treePosX = 5700 + Math.random()*1200;
+                    let treePosY = 575;
+                    let treePosZ = (Math.random() * 0.2) + 0.05;
+                    let treeNumber = Math.floor(Math.random()*14);
+                    let color = Math.floor(Math.random()*2);
+                    let colors = ["g", "y"];
 
-                new Tree(treePosX, treePosY, treePosZ, treeNumber, colors[color]);
+                    new Tree(treePosX, treePosY, treePosZ, treeNumber, colors[color]);
 
-            }
-            // İkinci yeryüzü için çalılar
-            let bushCount1 = 60;
-            for (let i = 0; i<bushCount1; i++){
-                let bushPosX = 5500 + Math.random()*1200;
-                let bushPosY = 590;
-                let bushPosZ = (Math.random() * 0.08) + 0.0;
-                let bushNumber = Math.floor(Math.random()*15);
-                let color = Math.floor(Math.random()*2);
-                let colors = ["g", "y"];
+                }
+                // İkinci yeryüzü için çalılar
+                let bushCount1 = 60;
+                for (let i = 0; i<bushCount1; i++){
+                    let bushPosX = 5500 + Math.random()*1200;
+                    let bushPosY = 590;
+                    let bushPosZ = (Math.random() * 0.08) + 0.0;
+                    let bushNumber = Math.floor(Math.random()*15);
+                    let color = Math.floor(Math.random()*2);
+                    let colors = ["g", "y"];
 
-                new Bush(bushPosX, bushPosY, bushPosZ, bushNumber, colors[color]);
-            }
+                    new Bush(bushPosX, bushPosY, bushPosZ, bushNumber, colors[color]);
+                }
 
-            
+        }
 
+        else if(level === 1){
+            let sceneWidth = 4600;
+            // Başlangıç: 500, 700
+            this.current = new Knight2(2500, 700);
+            // Sol ana engel
+            new Obstacle(0, 0, 400, 700);
+            // Sağ ana engel
+            new Obstacle(sceneWidth, 0, 3000, 700);
 
-    }
-    static randomApproachMax(min, max, p = 2){
-        let bias = 1 - Math.pow(Math.random(), p);
-        return min + ((max - min)*bias);
-    }
- /*
-        // AI LOGIC TEST 
-    static initScene(){
-        this.current = new Samurai0(-50,600);
+            let partWidth = 600;
+            for(let j = 0;j < 10; j++){
+                let s = Math.min(j, 10 - j);
+                let currentX = -500 + 540*j;
+                let currentY = 500 + 70*s;
+                let width = 500; let height = 500;
+                new Obstacle(currentX, currentY, width, height);
+                new PatrolPoint(currentX + width/2, currentY, width/2);
+                this.nextEntity(currentX + width/2, currentY);
+
+                let offset = 0.1;
+                let treeCount = 10;
+                for (let i = 0; i<treeCount; i++){
+                    let treePosX = currentX + width*offset + Math.random()*width*(0.9-offset);
+                    let treePosY = currentY - 25;
+                    let treePosZ = (Math.random() * 0.05) + 0.01;
+                    let treeNumber = Math.floor(Math.random()*14);
+                    let color = Math.floor(Math.random()*2);
+                    let colors = ["g", "y"];
+
+                    new Tree(treePosX, treePosY, treePosZ, treeNumber, colors[color]);
+
+                }
+                let bushCount = 15;
+                for (let i = 0; i<bushCount; i++){
+                    let bushPosX = currentX + width*offset + Math.random()*width*(0.9-offset);
+                    let bushPosY = currentY -10;
+                    let bushPosZ = (Math.random() * 0.02) + 0.0;
+                    let bushNumber = Math.floor(Math.random()*15);
+                    let color = Math.floor(Math.random()*2);
+                    let colors = ["g", "y"];
+
+                    new Bush(bushPosX, bushPosY, bushPosZ, bushNumber, colors[color]);
+                }
+            }  
+                // Bulutlar
+                let cloudCount = 150; 
+                for(let i = 0; i<cloudCount; i++){
+                    let cloudPosX = Math.random()*(sceneWidth + 2000);
+                    let cloudPosY = GameManager.randomApproachMax(300, 0, 1.7);
+                    let cloudPosZ = (Math.random() * 0.2) + 0.2;
+                    let cloudNumber = Math.floor(Math.random()*10);
+                    new Cloud(cloudPosX, cloudPosY, cloudPosZ, cloudNumber);
+                }
+        }
+        else if(level ===-1){
+            this.current = new Samurai0(-50,600);
         new Obstacle(-50, 600, 100, 20);
         new Knight0(0,700);
         new PatrolPoint(0,700,250);
@@ -177,8 +240,13 @@ class GameManager {
         new Obstacle(275, 600, 100, 200);
 
         new Hedgehog(-50, 550);
+        }
     }
-*/
+        
+    static randomApproachMax(min, max, p = 2){
+        let bias = 1 - Math.pow(Math.random(), p);
+        return min + ((max - min)*bias);
+    }
     // Girdi kontrolleri
     static checkInput() {
         if(this.current.isDead === true){ return;}

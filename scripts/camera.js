@@ -5,7 +5,7 @@ class Camera{
     static offsetY = 320.0;
 
     static lookAhead = 175.0;
-    static zoom = 1.4;
+    static zoom = 1.1;
     static move(posX, posY){
         this.posX += posX;
         this.posY += posY;

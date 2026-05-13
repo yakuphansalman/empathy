@@ -1,8 +1,8 @@
 AI_STATE = {
     RETURN: -1,
     PATROL: 0,
-    CHASE: 2,
-    ATTACK: 3
+    CHASE: 1,
+    ATTACK: 2
 }
 
 class AI{
@@ -89,7 +89,7 @@ class AI{
             let newPatrolX = this.center + (reverseDir * 100);
             let create = true;
             GameManager.allPatrolPoints.forEach(point => {
-                if(point.posX === newPatrolX){
+                if(point.posX === newPatrolX || !this.entity.physics.isGrounded){
                     create = false;
                 }
             });
@@ -116,7 +116,7 @@ class AI{
             };
             // Saldırma durumuna geçmek için bulunacağı maksimum mesafe
             let maxReach = this.entity.width/2 + (this.target.width/2) + this.entity.attackRange;
-            if(GameManager.toleratedOverlap(maxReach, this.entity, this.target)){
+            if(GameManager.toleratedOverlap(maxReach, this.entity, this.target) && this.entity.physics.isGrounded){
                 // Yönünü hedef varlığa çevir
                 let directionToTarget = this.target.posX - this.entity.posX;
                 this.entity.facingRight = directionToTarget < 0 ? -1: 1;
@@ -161,7 +161,7 @@ class AI{
         else if(this.currentState === AI_STATE.CHASE){
             let entityCenterY = this.entity.posY - this.entity.height/2;
             // Bu "offset" değeri engellerin sağından veya solundan ne kadar uzak olduğunu belirtir, nesnenin engelden ne kadar uzaktayken zıplayacağını belirler
-            let offset = 35.0;
+            let offset = 45.0;
             // Hedefin altındaki engel
             let obs = null;
             // Bu varlık hedefin altındaki engellerin sağ veya sol konumuna yaklaştı mı?
@@ -181,7 +181,7 @@ class AI{
                         // Aralık kontrolü
                         if(leftBelow || rightBelow){
                             // Zıpla
-                            if(this.entity.physics.isGrounded){ this.entity.applyForce(0, -25);}
+                            if(this.entity.physics.isGrounded){ this.entity.applyForce(0, -35);}
                         }
                     }
                     // Hedefe git

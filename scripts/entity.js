@@ -3,7 +3,7 @@ const ENTITY_PATH = "./assets/entity/";
 class Entity extends GameObject {
 
     facingRight = 1;
-    physics = new Physics(this, 0.77, 0.98, 3.5, 140.0, 1.0);
+    physics = new Physics(this, 0.8, 0.98, 3.5, 140.0, 1.0);
 
     constructor(name, posX, posY, width, height, health, speedX, damage, attackSpeed, attackRange, maxAttackState, visionRange, src) {
         super(name, posX, posY);

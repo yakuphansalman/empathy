@@ -20,7 +20,7 @@ window.onload = function () {
 
         // Sahneyi ilk açılışta başlat
         if (GameManager.initScene) {
-            GameManager.initScene();
+            GameManager.initScene(0);
         }
     }
 
