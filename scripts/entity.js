@@ -99,7 +99,7 @@ class Entity extends GameObject {
             }
         }
 
-        
+
 
         if (Math.abs(this.physics.velocityX) < 0.1 && this.physics.isGrounded && !this.isAttacking) {
             this.changeState("idle");
@@ -150,7 +150,7 @@ class Entity extends GameObject {
             ctx.lineWidth = 1;
             ctx.strokeRect(barX, barY, barWidth, barHeight);
         }
-         if (GameManager.debugMode) {
+        if (GameManager.debugMode) {
             // Çarpışma algılama kutusunu çiz
             ctx.strokeStyle = "#00D09E";
             ctx.lineWidth = 1;
@@ -213,8 +213,8 @@ class Entity extends GameObject {
         ctx.restore();
     }
 
-    
-    
+
+
 
     // Bazı girdiler veya AI çağrıları nedeniyle bakış yönünü günceller
     checkFlip() {
@@ -356,6 +356,7 @@ class Entity extends GameObject {
     // Hasar alma fonksiyonu
     takeDamage(damage, hitDirection) {
         this.health -= damage;
+        this.lastHitTime = Date.now();
         // Ölme koşulu
         if (this.health <= 0) {
             this.health = 0;

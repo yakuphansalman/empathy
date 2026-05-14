@@ -2,17 +2,18 @@ class GameManager {
     static debugMode = false;
 
     // Level ve tema yönetimi
-    static currentLevel = 3;
+    static currentLevel = 0;
     static totalLevels = 4; // Level 0, 1, 2, 3
     static currentThemeIndex = 0;
     static totalThemes = 4;
 
     // Zorla geçiş mekanizması
-    static possessionDuration = 15000;  // ms — kaç ms'de bir zorla geçiş (7 sn)
+    static possessionDuration = 6000;  // ms — kaç ms'de bir zorla geçiş (7 sn)
     static possessionTimer = 0;      // geçerli karakterde geçen süre (ms)
     static lastTick = Date.now();
     static warningThreshold = 3000;  // son 3 saniyede uyarı göster
     static forceSwitchPending = false; // geçiş animasyonu kilidi
+    static isGameOver = false; // oyun bitti mi?
 
     // Oyuncunun kontrol ettiği varlık
     static current;
@@ -76,6 +77,18 @@ class GameManager {
         }
     }
 
+    static restartLevel() {
+        console.log(`Restarting Level ${this.currentLevel}...`);
+
+        this.isGameOver = false;
+        this.forceSwitchPending = false;
+        this.possessionTimer = 0;
+
+        this.clearScene();
+        this.updateThemeForLevel();
+        this.initScene(this.currentLevel);
+    }
+
     static forceSwitch(isManual = false) {
         if (this.forceSwitchPending) return;
         this.forceSwitchPending = true;
@@ -107,7 +120,7 @@ class GameManager {
 
         // Geçişi tamamla ve süreyi sıfırla
         let range = 250.0
-        if(isManual && GameManager.getDistance(this.current, target) > range) { this.forceSwitchPending = false; return;}
+        if (isManual && GameManager.getDistance(this.current, target) > range) { this.forceSwitchPending = false; return; }
         this.current = target;
         this.possessionTimer = 0;
         this.forceSwitchPending = false;
@@ -349,8 +362,13 @@ class GameManager {
 
             // Karakter değiştir
             if (keys.KeyZ) {
-                this.forceSwitch(true);
-                keys.KeyZ = false;
+                let healthPercentage = this.current.health / this.current.maxHealth;
+
+                if (healthPercentage < 0.25) {
+                    console.log("Ruh transferi için çok zayıfsın!");
+                    keys.KeyZ = false;
+                    return;
+                }
             }
         }
     }
@@ -454,6 +472,15 @@ class GameManager {
             console.log("Level Complete! Moving to next level...");
             setTimeout(() => this.nextLevel(), 1000);
             return; // Update döngüsünü durdur
+        }
+
+        if (this.current && this.current.isDead && !this.isGameOver) {
+            this.isGameOver = true; // Lock it! So this if-statement only runs once.
+
+            // Wait for 3 seconds (3000 milliseconds) so the player can see the "YOU DIED" screen
+            setTimeout(() => {
+                this.restartLevel();
+            }, 3000);
         }
 
         // Debug mode çizimleri
