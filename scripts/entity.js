@@ -99,6 +99,8 @@ class Entity extends GameObject {
             }
         }
 
+        
+
         if (Math.abs(this.physics.velocityX) < 0.1 && this.physics.isGrounded && !this.isAttacking) {
             this.changeState("idle");
         }
@@ -148,6 +150,40 @@ class Entity extends GameObject {
             ctx.lineWidth = 1;
             ctx.strokeRect(barX, barY, barWidth, barHeight);
         }
+         if (GameManager.debugMode) {
+            // Çarpışma algılama kutusunu çiz
+            ctx.strokeStyle = "#00D09E";
+            ctx.lineWidth = 1;
+
+            ctx.strokeRect(-this.width / 2, -this.height / 2, this.width, this.height);
+
+            ctx.fillStyle = "yellow";
+            ctx.fillRect(-2, -2, 4, 4);
+
+            // Görüş menzili
+            ctx.beginPath();
+            ctx.strokeStyle = "#0088FF";
+            ctx.lineWidth = 1;
+
+            let startAngle = this.facingRight === 1 ? -Math.PI / 2 : Math.PI / 2;
+            let endAngle = this.facingRight === 1 ? Math.PI / 2 : (3 * Math.PI) / 2;
+
+            ctx.arc(0, 0, this.visionRange, startAngle, endAngle, false);
+
+            ctx.stroke();
+
+            // Saldırı menzili
+            ctx.beginPath();
+            ctx.strokeStyle = "#FF2211";
+            ctx.lineWidth = 1;
+            let attackCenterX = (this.width / 2) * this.facingRight;
+
+            ctx.arc(attackCenterX, 0, this.attackRange, startAngle, endAngle, false);
+            ctx.lineTo(attackCenterX, 0);
+            ctx.closePath();
+
+            ctx.stroke();
+        }
 
         if (GameManager.current === this) {
             ctx.fillStyle = "#00D09E";
@@ -177,6 +213,8 @@ class Entity extends GameObject {
         ctx.restore();
     }
 
+    
+    
 
     // Bazı girdiler veya AI çağrıları nedeniyle bakış yönünü günceller
     checkFlip() {
@@ -333,7 +371,7 @@ class Entity extends GameObject {
         // Hasar alan varlık alınan hasara bağlı sersemler 
         this.stun(3 * damage / 100);
         // Alınan hasara bağlı itme
-        this.physics.velocityX = hitDirection * damage;
+        this.physics.velocityX = hitDirection * damage * 0.25;
     }
 
     // Ölme fonksiyonu

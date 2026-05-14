@@ -2,13 +2,13 @@ class GameManager {
     static debugMode = false;
 
     // Level ve tema yönetimi
-    static currentLevel = 0;
+    static currentLevel = 3;
     static totalLevels = 4; // Level 0, 1, 2, 3
     static currentThemeIndex = 0;
     static totalThemes = 4;
 
     // Zorla geçiş mekanizması
-    static possessionDuration = 5000;  // ms — kaç ms'de bir zorla geçiş (7 sn)
+    static possessionDuration = 15000;  // ms — kaç ms'de bir zorla geçiş (7 sn)
     static possessionTimer = 0;      // geçerli karakterde geçen süre (ms)
     static lastTick = Date.now();
     static warningThreshold = 3000;  // son 3 saniyede uyarı göster
@@ -106,6 +106,8 @@ class GameManager {
         }
 
         // Geçişi tamamla ve süreyi sıfırla
+        let range = 250.0
+        if(isManual && GameManager.getDistance(this.current, target) > range) { this.forceSwitchPending = false; return;}
         this.current = target;
         this.possessionTimer = 0;
         this.forceSwitchPending = false;
@@ -454,6 +456,14 @@ class GameManager {
             return; // Update döngüsünü durdur
         }
 
+        // Debug mode çizimleri
+        if (GameManager.debugMode) {
+            this.allPatrolPoints.forEach(point => {
+                if (point.draw) {
+                    point.draw(ctx);
+                }
+            });
+        }
         // Girdi kontrolleri her kare başına yapılır
         this.updatePossessionTimer();
         this.checkInput();

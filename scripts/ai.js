@@ -89,7 +89,7 @@ class AI{
             let newPatrolX = this.center + (reverseDir * 100);
             let create = true;
             GameManager.allPatrolPoints.forEach(point => {
-                if(point.posX === newPatrolX || !this.entity.physics.isGrounded){
+                if(point.posX === newPatrolX){
                     create = false;
                 }
             });

@@ -14,7 +14,7 @@ ANIM_STATES = {
 class Knight0 extends Entity{
     static resX = 128;
     static resY = 64;
-    static speed = 15;
+    static speed = 20;
     constructor(posX, posY){
         super("Knight0", posX, posY, 24, 64, 120, 1.6, 12, 1.0, 25, 4, 200, "Knight0");
         this.animation = {
@@ -53,7 +53,7 @@ class Knight1 extends Entity{
 class Knight2 extends Entity{
     static resX = 100;
     static resY = 64;
-    static speed = 25;
+    static speed = 15;
     constructor(posX, posY){
         super("Knight2", posX, posY, 30, 64, 130, 1.5, 15, 0.9, 36, 4, 180, "Knight2");
         this.animation = {
@@ -73,7 +73,7 @@ class Knight2 extends Entity{
 class Knight3 extends Entity{
     static resX = 128;
     static resY = 96;
-    static speed = 25;
+    static speed = 20;
     constructor(posX, posY){
         super("Knight3", posX, posY, 30, 64, 180, 1.5, 20, 0.7, 28, 2, 160, "Knight3");
         this.animation = {
@@ -91,7 +91,7 @@ class Knight3 extends Entity{
 class Samurai0 extends Entity{
     static resX = 96;
     static resY = 96;
-    static speed = 25;
+    static speed = 20;
     constructor(posX, posY){
         super("Samurai0", posX, posY, 24, 64, 85, 2.8, 18, 1.8, 35, 1, 280, "Samurai0");
         this.animation = {
@@ -108,7 +108,7 @@ class Samurai0 extends Entity{
 class Warrior0 extends Entity{
     static resX = 162;
     static resY = 162;
-    static speed = 25;
+    static speed = 20;
     constructor(posX, posY){
         super("Warrior0", posX, posY, 24, 40, 140, 1.7, 16, 1.1, 24, 3, 190, "Warrior0");
         this.animation = {
@@ -127,7 +127,7 @@ class Warrior0 extends Entity{
 class Warrior1 extends Entity{
     static resX = 124;
     static resY = 93;
-    static speed = 25;
+    static speed = 20;
     constructor(posX, posY){
         super("Warrior1", posX, posY, 24, 45, 110, 2.0, 14, 1.3, 26, 3, 210, "Warrior1");
         this.animation = {
@@ -146,7 +146,7 @@ class Warrior1 extends Entity{
 class Warrior2 extends Entity{
     static resX = 160;
     static resY = 90;
-    static speed = 25;
+    static speed = 20;
     constructor(posX, posY){
         super("Warrior2", posX, posY, 30, 90, 220, 1.5, 25, 0.8, 32, 1, 170, "Warrior2");
         this.animation = {
@@ -163,7 +163,7 @@ class Warrior2 extends Entity{
 class Warrior3 extends Entity{
     static resX = 128;
     static resY = 96;
-    static speed = 25;
+    static speed = 20;
     constructor(posX, posY){
         super("Warrior3", posX, posY, 24, 96, 200, 1.6, 22, 0.85, 30, 1, 180, "Warrior3");
         this.animation = {
@@ -180,7 +180,7 @@ class Warrior3 extends Entity{
 class Demon0 extends Entity{
     static resX = 128;
     static resY = 128;
-    static speed = 25;
+    static speed = 20;
     constructor(posX, posY){
         super("Demon0", posX, posY, 36, 36, 250, 1.8, 28, 1.0, 35, 1, 250, "Demon0");
         this.animation = {
@@ -197,7 +197,7 @@ class Demon0 extends Entity{
 class Monk0 extends Entity{
     static resX = 82;
     static resY = 60;
-    static speed = 25;
+    static speed = 20;
     constructor(posX, posY){
         super("Monk0", posX, posY, 24, 64, 70, 3.0, 7, 2.5, 15, 2, 260, "Monk0");
         this.animation = {
@@ -215,7 +215,7 @@ class Monk0 extends Entity{
 class Hero0 extends Entity{
     static resX = 200;
     static resY = 200;
-    static speed = 25;
+    static speed = 20;
     constructor(posX, posY){
         super("Hero0", posX, posY, 30, 64, 150, 2.5, 18, 1.4, 28, 2, 300, "Hero0");
         this.animation = {
@@ -233,7 +233,7 @@ class Hero0 extends Entity{
 class King0 extends Entity{
     static resX = 160;
     static resY = 111;
-    static speed = 25;
+    static speed = 20;
     constructor(posX, posY){
         super("King0", posX, posY, 36, 96, 500, 1.5, 40, 0.6, 45, 3, 350, "King0");
         this.animation = {

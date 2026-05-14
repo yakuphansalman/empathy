@@ -1,5 +1,18 @@
 class LevelBuilder {
     static build(level) {
+        if(level === -1){
+            GameManager.current = new Knight2(500,500);
+            new Obstacle(500, 520, 100, 20);
+            new Obstacle(0, 700, 5000, 500);
+            new Knight0(500, 600).neutral = false;
+            new Obstacle(500, 620, 100, 20);
+            
+            for(let i = 0;i< GameManager.characterRoster.length; i++){
+                GameManager.nextEntity(100 + i*100, 700);
+            }
+
+
+        }
         if (level === 0) {
             let sceneWidth = 6500;
             GameManager.current = new Knight2(500, 700);
