@@ -1,11 +1,11 @@
 class Obstacle extends GameObject {
     width = 1;
     height = 1;
-
-    // Per-instance cached pattern + the theme it was built for
-    _cachedPattern = null;   // Stores the generated pattern in memory
-    _cachedThemeId = -1;     // Stores which theme this pattern belongs to
-    _cachedImgSrc = "";      // Stores which image this pattern was created from
+    
+    // Örnek başına önbelleğe alınmış şablon + bu şablonun oluşturulduğu tema
+    _cachedPattern = null;   // Oluşturulan deseni bellekte saklar
+    _cachedThemeId = -1;     // Bu desenin hangi temaya ait olduğunu kaydeder
+    _cachedImgSrc = "";      // Bu desenin hangi görüntüden oluşturulduğunu kaydeder
 
     constructor(posX, posY, width, height) {
         super();
@@ -18,7 +18,7 @@ class Obstacle extends GameObject {
         GameManager.addObstacle(this);
     }
 
-    // Rebuild the tiling pattern only when the theme/image changes
+    // Döşeme desenini yalnızca tema/görüntü değiştiğinde yeniden oluştur
     _getPattern(ctx) {
         let img = LevelManager.platformImg;
         if (!img || !img.complete || img.naturalWidth === 0) return null;
@@ -56,7 +56,7 @@ class Obstacle extends GameObject {
 
         ctx.fillRect(drawX, drawY, this.width, this.height);
 
-        // Subtle shadow on the lower portion for depth
+        // Derinlik hissi vermek için alt kısımda hafif bir gölge
         ctx.fillStyle = "rgba(0,0,0,0.18)";
         let shadowTop = Math.min(this.height * 0.35, 20);
         ctx.fillRect(drawX, drawY + shadowTop, this.width, this.height - shadowTop);

@@ -23,38 +23,38 @@ class Entity extends GameObject {
         this.ai = new AI(this);
         GameManager.addEntity(this);
     }
-    
+
     // "AI Entity"ler için altındaki engeli döndürür.
-    get obstacleBelow(){
-        if(GameManager.allObstacles.length === 0){ return null;}
+    get obstacleBelow() {
+        if (GameManager.allObstacles.length === 0) { return null; }
         let closestValue = Infinity;
         let closest = GameManager.allObstacles[0];
         GameManager.allObstacles.forEach(obstacle => {
-            // Compare centers
-            if(obstacle.posY + obstacle.height/2 < this.posY + this.height/2){
+            // Merkezleri karşılaştır
+            if (obstacle.posY + obstacle.height / 2 < this.posY + this.height / 2) {
                 return;
             }
-            let obsCenter = obstacle.posX + (obstacle.width/2);
-            let center = this.posX + this.width/2;
+            let obsCenter = obstacle.posX + (obstacle.width / 2);
+            let center = this.posX + this.width / 2;
             let delta = Math.abs(obsCenter - center);
-            if(delta < closestValue){ closest = obstacle; closestValue = delta;}
+            if (delta < closestValue) { closest = obstacle; closestValue = delta; }
         });
         return closest;
     }
     // "AI Entity"ler için üstündeki engeli döndürür.
-    get obstacleAbove(){
-        if(GameManager.allObstacles.length === 0){ return null;}
+    get obstacleAbove() {
+        if (GameManager.allObstacles.length === 0) { return null; }
         let closestValue = Infinity;
         let closest = GameManager.allObstacles[0];
         GameManager.allObstacles.forEach(obstacle => {
-            // Compare centers
-            if(obstacle.posY + obstacle.height/2 > this.posY + this.height/2){
+            // Merkezleri karşılaştır
+            if (obstacle.posY + obstacle.height / 2 > this.posY + this.height / 2) {
                 return;
             }
-            let obsCenter = obstacle.posX + (obstacle.width/2);
-            let center = this.posX + this.width/2
+            let obsCenter = obstacle.posX + (obstacle.width / 2);
+            let center = this.posX + this.width / 2
             let delta = Math.abs(obsCenter - center);
-            if(delta < closestValue){ closest = obstacle; closestValue = delta;}
+            if (delta < closestValue) { closest = obstacle; closestValue = delta; }
         });
         return closest;
     }
@@ -73,9 +73,8 @@ class Entity extends GameObject {
 
         this.currentState = newState;
 
-        // Safety check: Ensure the animation exists for the new state.
-        // If it does, reset its frames and timers to 0 so it plays from the very beginning 
-        // instead of resuming from where it left off last time.
+        // Güvenlik kontrolü: Yeni durum için animasyonun mevcut olduğundan emin olun.
+        // Varsa, son kaldığı yerden devam etmek yerine en başından oynatılması için karelerini ve zamanlayıcılarını 0'a sıfırlayın.
         if (this.animation && this.animation[this.currentState]) {
             this.animation[this.currentState].reset();
         }
@@ -83,9 +82,9 @@ class Entity extends GameObject {
     update() {
         //this.checkFlip();
         this.physics.update();
-        if(Animation.isReversed){ return;}
+        if (Animation.isReversed) { return; }
         // Bir varlık 1000px üstüne düşerse ölür
-        if(this.posY > 1000){ this.die();}
+        if (this.posY > 1000) { this.die(); }
         // "Stun" kontrolü
         this.checkStun();
 
@@ -107,18 +106,16 @@ class Entity extends GameObject {
     }
 
     applyForce(forceX, forceY) {
-        if (!this.physics.moveable) { return; } 
+        if (!this.physics.moveable) { return; }
 
         // Hıza bağlı kuvvet uygula
         forceX *= 0.1 * this.speedX;
         this.physics.applyForce(forceX, forceY);
     }
 
-    // Add these default values right below "facingRight = 1;" at the top of your Entity class
     spriteOffsetX = 0;
     spriteOffsetY = 0;
 
-    // Replace your draw method with this:
     draw(ctx) {
         ctx.save();
 
@@ -138,32 +135,32 @@ class Entity extends GameObject {
             ctx.fillStyle = "#FF0000";
             ctx.fillRect(barX, barY, barWidth, barHeight);
 
-            // B) Ön Plan (Yeşil - Mevcut Can Yüzdesi)
+            // B) Ön Plan (Yeşil - Kalan Can)
             // Kalan canın yüzdesini hesapla ve barın genişliğine uyarla
-            let healthRatio = Math.max(0, this.health / this.maxHealth); 
+            let healthRatio = Math.max(0, this.health / this.maxHealth);
             let currentHealthWidth = barWidth * healthRatio;
-            
-            ctx.fillStyle = "#00FF00";
+
+            ctx.fillStyle = "#00D09E";
             ctx.fillRect(barX, barY, currentHealthWidth, barHeight);
 
-            // C) Çerçeve (Siyah - Daha şık durması için)
+            // C) Çerçeve
             ctx.strokeStyle = "#000000";
             ctx.lineWidth = 1;
             ctx.strokeRect(barX, barY, barWidth, barHeight);
         }
 
         if (GameManager.current === this) {
-            ctx.fillStyle = "#00FF00";
+            ctx.fillStyle = "#00D09E";
             ctx.beginPath();
 
-            // Create a smooth bouncing effect using the current time and Sine wave
+            // Geçerli zamanı ve sinüs dalgasını kullanarak yumuşak bir zıplama efekti oluştur
             let bounce = Math.sin(Date.now() / 150) * 5;
 
-            // Position the arrow above the character's head (-height / 2)
-            let arrowTipY = -this.height / 2 - 15 + bounce;
+            // Oku karakterin başının üstüne yerleştir (-yükseklik / 2)
+            let arrowTipY = -this.height / 2 - 30 + bounce;
 
-            // Draw an upside-down triangle using Canvas lines
-            ctx.moveTo(0, arrowTipY);           // Bottom point (pointing down at head)
+            // Canvas çizgilerini kullanarak ters üçgen çiz
+            ctx.moveTo(0, arrowTipY);           // Bottom point
             ctx.lineTo(-8, arrowTipY - 12);     // Top left corner
             ctx.lineTo(8, arrowTipY - 12);      // Top right corner
             ctx.fill();                         // Fill the shape with color
@@ -171,16 +168,16 @@ class Entity extends GameObject {
 
         // "DebugMode" elemanlarını çizer.
         if (GameManager.debugMode) {
-            /* COLLIDER */
-            ctx.strokeStyle = "#00FF00";
+            // Çarpışma algılama kutusunu çiz
+            ctx.strokeStyle = "#00D09E";
             ctx.lineWidth = 1;
-            
-            ctx.strokeRect(-this.width / 2, -this.height / 2, this.width, this.height);
-            
-            ctx.fillStyle = "yellow";
-            ctx.fillRect(-2, -2, 4, 4); 
 
-            /* VISION RANGE */
+            ctx.strokeRect(-this.width / 2, -this.height / 2, this.width, this.height);
+
+            ctx.fillStyle = "yellow";
+            ctx.fillRect(-2, -2, 4, 4);
+
+            // Görüş menzili
             ctx.beginPath();
             ctx.strokeStyle = "#0088FF";
             ctx.lineWidth = 1;
@@ -192,7 +189,7 @@ class Entity extends GameObject {
 
             ctx.stroke();
 
-            /* ATTACK RANGE */
+            // Saldırı menzili
             ctx.beginPath();
             ctx.strokeStyle = "#FF2211";
             ctx.lineWidth = 1;
@@ -205,7 +202,7 @@ class Entity extends GameObject {
             ctx.stroke();
         }
 
-        // Apply specific offsets (Mushrooms will be 0, Player will be -15)
+        // Belirli ofsetleri uygula (Mantarlar 0, Oyuncu -15 olacak)
         ctx.translate(this.spriteOffsetX * this.facingRight, this.spriteOffsetY);
         ctx.scale(this.facingRight, 1);
 
@@ -231,10 +228,10 @@ class Entity extends GameObject {
     }
 
 
-    stateHistory = [];  // Array to store past states
-    maxHistory = 180;   // Store up to 3 seconds at 60 FPS
+    stateHistory = [];  // Geçmiş durumları saklamak için dizi
+    maxHistory = 180;   // 60 FPS'de en fazla 3 saniye kaydet
 
-    // Save current state to history
+    // Kaydedilen durumu günceller. Her karede çağrılır. Kaydedilen durumlar arasında pozisyon, sağlık, animasyon durumu ve fizik durumunu içerir.
     saveState() {
         let currentAnimFreame = 0;
         if (this.animation && this.animation[this.currentState]) {
@@ -252,13 +249,13 @@ class Entity extends GameObject {
             velocityY: this.physics.velocityY
         });
 
-        // Limit history size
+        // Geçmiş boyutunu sınırla
         if (this.stateHistory.length > this.maxHistory) {
             this.stateHistory.shift();
         }
     }
 
-    // Return to last state
+    // Son kaydedilen duruma geri sarar
     rewind() {
         Animation.isReversed = true;
         if (this.stateHistory.length > 0) {
@@ -277,7 +274,7 @@ class Entity extends GameObject {
             if (this.animation && this.animation[this.currentState]) {
                 this.animation[this.currentState].currentFrame = lastState.animFrame;
             }
-        }else{
+        } else {
             Animation.isReversed = false;
         }
     }
@@ -311,12 +308,12 @@ class Entity extends GameObject {
 
     // Bekleme süresi olan "Attack" fonskiyonu
     // "Date.now()" fonskiyonu sürekli güncellenir ve "Attack" fonksiyonu bir çağrıya bağlı olduğundan birlikte kullanılır
-    lastAttack = Date.now();i
+    lastAttack = Date.now(); i
     // Birden fazla saldırı fonksiyonu olabildiğinden bu seçimi "attackState" yapar
     attackState = 0;
     attack() {
-        // Bekleme süresi belirlenir
-        let baseCooldown = 2000;
+        // 1. Lower the base cooldown significantly (from 2000 to 600)
+        let baseCooldown = 600;
         let cooldown = baseCooldown * (100 - this.attackSpeed) / 100;
         let canAttack = Date.now() > (this.lastAttack + cooldown);
         if (!canAttack) { return; }
@@ -325,32 +322,27 @@ class Entity extends GameObject {
 
         // Saldırı animasyonu durum döngüsü
         this.attackState %= this.maxAttackState;
-        // Animasyon durumunu değiştir
         this.changeState("attack" + this.attackState);
         this.lastAttack = Date.now();
-        // Saldıran varlıklar kısa bir süreliğine sersemler
-        this.stun(0.75 + 1/this.attackSpeed);
+
+
         this.attackState++;
 
         // Saldırı animasyonu başlar başlamaz diğer varlıklar hasar yememesi için bir zaman aşımı
         setTimeout(() => {
             for (let i = 0; i < GameManager.allEntities.length; i++) {
-                // Menzil içindeki tüm düşmanlar seçilir
                 let target = GameManager.allEntities[i];
-                // Bu varlık kendine hasar vermemeli
                 if (this === target) { continue; }
-                // Konum fark vektörleri
-                let deltaX = target.posX + target.width/2 - this.posX - this.width/2;
-                let deltaY = target.posY + target.height/2 - this.posY - this.height/2;
 
-                // Bu varlığın en fazla vurabileceği menzil
+                let deltaX = target.posX + target.width / 2 - this.posX - this.width / 2;
+                let deltaY = target.posY + target.height / 2 - this.posY - this.height / 2;
+
                 let maxReachX = (this.width / 2) + (target.width / 2) + this.attackRange;
                 let maxReachY = (this.height / 2) + (target.height / 2);
-                // Menzil kontrolü
+
                 let inRangeX = Math.abs(deltaX) <= maxReachX;
                 let inRangeY = Math.abs(deltaY) <= maxReachY;
-                // Bakış yönüne bağlı varlık kontrolü
-                let isInFront = (deltaX * this.facingRight) >= 0 || Math.abs(deltaX) < (this.width / 2)
+                let isInFront = (deltaX * this.facingRight) >= 0 || Math.abs(deltaX) < (this.width / 2);
 
                 if (inRangeX && inRangeY && isInFront) {
                     target.takeDamage(this.damage, this.facingRight);
@@ -375,7 +367,7 @@ class Entity extends GameObject {
             this.changeState("hurt");
         }
         // Hasar alan varlık alınan hasara bağlı sersemler 
-        this.stun(3*damage/100);
+        this.stun(3 * damage / 100);
         // Alınan hasara bağlı itme
         this.physics.velocityX = hitDirection * damage;
     }
@@ -395,7 +387,7 @@ class Entity extends GameObject {
             this.posY = 10000;
 
             let index = GameManager.allEntities.indexOf(this);
-            if(index >= 0){
+            if (index >= 0) {
                 GameManager.allEntities.splice(index, 1);
             }
             this.Entity = null;

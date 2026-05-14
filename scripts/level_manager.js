@@ -1,7 +1,4 @@
-// ─────────────────────────────────────────────────────────────────────────────
-//  LevelManager  —  Manages level themes, backgrounds, and platform textures
-// ─────────────────────────────────────────────────────────────────────────────
-
+// LevelManager  —  Seviye temalarını, arka planları ve platform dokularını yönetir
 const LEVELS = {
     FOREST: 0,
     WINTER: 1,
@@ -11,7 +8,7 @@ const LEVELS = {
 
 class LevelManager {
 
-    // ── Theme definitions ────────────────────────────────────────────────────
+    // Tema tanımları
     static themes = [
         {
             id: LEVELS.FOREST,
@@ -47,16 +44,16 @@ class LevelManager {
         }
     ];
 
-    // ── Runtime state ────────────────────────────────────────────────────────
+    // Runtime durumu
     static currentThemeId = LEVELS.FOREST;
     static _bgImg = null;
     static _platformImg = null;
     static _bgReady = false;
     static _platReady = false;
 
-    // ── Public API ───────────────────────────────────────────────────────────
+    // Public API
 
-    /** Load a theme by its LEVELS constant.  Safe to call mid-game. */
+    // LEVELS sabitine göre bir tema yükle.  Oyun sırasında güvenle çağrılabilir. Tema geçişi yaparken arka plan ve platform dokularını günceller.
     static loadTheme(themeId) {
         let theme = this.themes[themeId];
         if (!theme) { console.warn("LevelManager: unknown theme", themeId); return; }
@@ -80,14 +77,14 @@ class LevelManager {
         console.log(`LevelManager: theme loaded → ${theme.name}`);
     }
 
-    // Encapsulation of theme properties for easy access by other classes (e.g. Obstacle)
+    // Diğer sınıfların (örn. Obstacle) kolayca erişebilmesi için tema özelliklerinin kapsüllenmesi
     static get currentTheme() { return this.themes[this.currentThemeId]; }
     static get bgImg() { return this._bgImg; }
     static get platformImg() { return this._platformImg; }
     static get parallax() { return this.currentTheme ? this.currentTheme.parallax : 0.25; }
     static get skyColor() { return this.currentTheme ? this.currentTheme.skyColor : "#71D9E2"; }
 
-    // ── Draw background ──────────────────────────────────────────────────────
+    // Arka planı çiz
     static drawBackground(ctx, cvs) {
         // Sky fallback
         ctx.fillStyle = this.skyColor;
@@ -100,17 +97,17 @@ class LevelManager {
         let scale = cvs.height / img.naturalHeight;
         let bgW = img.naturalWidth * scale;
         let bgH = cvs.height;
-        // Calculate starting X so the image tiles seamlessly as it scrolls, and draw enough tiles to cover the canvas width
+        // Görüntünün kaydırma sırasında kesintisiz bir şekilde birleşmesi için başlangıç X koordinatını hesapla ve tuvalin genişliğini kaplayacak kadar döşeme çiz
         let startX = -(bgScrollX % bgW);
         if (startX > 0) startX -= bgW;
-        startX -= bgW; // extra tile left to kill the black gap
+        startX -= bgW; // Siyah boşluğu kapatmak için kalan fazladan karo
 
         for (let x = startX; x < cvs.width + bgW; x += bgW) {
             ctx.drawImage(img, x, 0, bgW, bgH);
         }
     }
 
-    // ── HUD: theme selector (press 1-4) ──────────────────────────────────────
+    //  HUD: Tema seçici (1-4)
     static drawHUD(ctx, cvs) {
         let labels = ["1:Forest", "2:Winter", "3:Night", "4:Magic"];
         let colors = ["#3db87a", "#8ecfea", "#5b6fa8", "#b06be3"];

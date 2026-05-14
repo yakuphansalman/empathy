@@ -1,9 +1,21 @@
 class GameManager {
     static debugMode = false;
 
+    // ── LEVEL & THEME MANAGEMENT ──
+    static currentLevel = 0;
+    static totalLevels = 4; // Level 0, 1, 2, 3
+    static currentThemeIndex = 0;
+    static totalThemes = 4;
+
+    static possessionDuration = 5000;  // ms — kaç ms'de bir zorla geçiş (7 sn)
+    static possessionTimer = 0;      // geçerli karakterde geçen süre (ms)
+    static lastTick = Date.now();
+    static warningThreshold = 3000;  // son 3 saniyede uyarı göster
+    static forceSwitchPending = false; // geçiş animasyonu kilidi
+
     // Oyuncunun kontrol ettiği varlık
     static current;
-    
+
     // Objeleri tutan diziler
     static allGameObjects = [];
     static allEntities = [];
@@ -19,13 +31,13 @@ class GameManager {
     static addEntity(entity) {
         this.allEntities.push(entity);
     }
-    static addObstacle(obstacle){
+    static addObstacle(obstacle) {
         this.allObstacles.push(obstacle);
     }
-    static addEnviroment(enviroment){
+    static addEnviroment(enviroment) {
         this.allEnviroments.push(enviroment);
     }
-    static addPatrolPoint(patrolPoint){
+    static addPatrolPoint(patrolPoint) {
         this.allPatrolPoints.push(patrolPoint);
     }
 
@@ -36,221 +48,246 @@ class GameManager {
     ];
     static rosterIndex = 0;
 
-    static nextEntity(posX, posY){
+    static nextEntity(posX, posY) {
         let targetClass = this.characterRoster[this.rosterIndex];
         let newEntity = new targetClass(posX, posY);
-
         this.rosterIndex = (this.rosterIndex + 1) % this.characterRoster.length;
-
         return newEntity;
     }
 
+    static updatePossessionTimer() {
+        let now = Date.now();
 
-    /* LEVEL_0
-    
-    static initScene(){
-        this.current = new Entity("player", 0, 250, 100, 1.5, 10, 1, 25, 150, "./assets/player");
-        new PatrolPoint(500, 600, 200);
-        new PatrolPoint(1500, 400, 250);
-        new Entity("enemy", 150, 600, 100, 1.5, 1.2, 1, 5, 150,"./assets/player");
-        new Entity("enemy", 1500, 550, 100, 1.5, 1.2, 1, 5, 150, "./assets/player");
-        new Obstacle(0, 600, 5000, 120);
-        new Obstacle(0, 250, 200, 200);
+        if (this.current && this.current.isDead) {
+            return;
+        }
 
-        new Obstacle(800, 550, 1000, 70);//Long Obstacle
-        //new Obstacle(800, 580, 400, 20);//Short Obstacle
+        let dt = now - this.lastTick;
+        this.lastTick = now;
 
+        this.possessionTimer += dt;
+
+        let remaining = this.possessionDuration - this.possessionTimer;
+
+        // Süre doldu → zorla geçiş
+        if (remaining <= 0) {
+            this.forceSwitch();
+        }
     }
-        */  
+
+    static forceSwitch(isManual = false) {
+        if (this.forceSwitchPending) return;
+        this.forceSwitchPending = true;
+
+        // Önce yeşil bağ (görüş açısı) olan en yakın hedefi bul
+        let target = this.getClosestVisibleTarget();
+
+        // EĞER MANUEL BASILDIYSA ('Z' tuşu): Görünür hedef yoksa geçişi reddet!
+        if (isManual && !target) {
+            this.forceSwitchPending = false;
+            return;
+        }
+
+        // EĞER OTOMATİK SÜRE DOLDUYSA: Görünürde kimse olmasa bile duvar arkasından en yakını seç
+        if (!target) {
+            let candidates = this.allEntities.filter(e => e !== this.current && !e.isDead);
+
+            if (candidates.length === 0) {
+                // Sahnede geçilecek kimse kalmadı
+                this.possessionTimer = 0;
+                this.forceSwitchPending = false;
+                return;
+            }
+
+            target = candidates.reduce((closest, e) => {
+                return this.getDistance(this.current, e) < this.getDistance(this.current, closest) ? e : closest;
+            });
+        }
+
+        // Geçişi tamamla ve süreyi sıfırla
+        this.current = target;
+        this.possessionTimer = 0;
+        this.forceSwitchPending = false;
+    }
+
+    static drawPossessionHUD(ctx) {
+        let remaining = Math.max(0, this.possessionDuration - this.possessionTimer);
+        let seconds = Math.ceil(remaining / 1000);
+        let isWarning = remaining <= this.warningThreshold;
+
+        ctx.save();
+        ctx.resetTransform(); // Kameradan bağımsız sabit çizim için
+
+        let cx = ctx.canvas.width / 2;
+        let cy = 250;
+        let r = 28;
+        let progress = remaining / this.possessionDuration;
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.6)";
+        ctx.lineWidth = 10; // Thicker than the main line
+        ctx.stroke();
+
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = isWarning ? "#FF0000" : "#FFAA00";
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * progress);
+        ctx.strokeStyle = isWarning ? "#FF3333" : "#FFCC00";
+        ctx.lineWidth = 6;
+        ctx.lineCap = "round";
+        ctx.stroke();
+
+        ctx.shadowBlur = 0;
+
+        let textStr = seconds.toString();
+        ctx.font = `bold ${isWarning ? 22 : 18}px monospace`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = "black";
+        ctx.strokeText(textStr, cx, cy);
+
+        ctx.fillStyle = isWarning ? "#FF4444" : "#FFFFFF";
+        ctx.fillText(textStr, cx, cy);
+
+        ctx.font = "bold 12px monospace";
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = "black";
+        ctx.strokeText("SWITCH", cx, cy + r + 16);
+
+        ctx.fillStyle = isWarning ? "#FF4444" : "#FFCC00";
+        ctx.fillText("SWITCH", cx, cy + r + 16);
+
+        // 3 saniye kala uyarı efekti
+        if (isWarning) {
+            let alpha = 0.55 + 0.45 * Math.sin(Date.now() / 130);
+            ctx.globalAlpha = alpha;
+            ctx.font = "bold 15px monospace";
+
+            // Uyarı metni
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = "black";
+            ctx.strokeText("SWITCHING SOON!", cx, cy + r + 34);
+
+            ctx.fillStyle = "#FF3333";
+            ctx.fillText("SWITCHING SOON!", cx, cy + r + 34);
+        }
+
+        ctx.restore();
+    }
+
+    static drawDeathScreen(ctx) {
+        // Sadece kontrol ettiğimiz karakter öldüyse çalışır
+        if (this.current && this.current.isDead) {
+            ctx.save();
+            ctx.resetTransform(); // Kameranın pozisyonundan etkilenmemesi için sabitleriz
+
+            let cvsWidth = ctx.canvas.width;
+            let cvsHeight = ctx.canvas.height;
+
+            // Ekranı hafifçe karart
+            ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+            ctx.fillRect(0, 0, cvsWidth, cvsHeight);
+
+            // Kırmızı Ölüm Yazısı
+            ctx.fillStyle = "#FF2222";
+            ctx.font = "bold 80px monospace";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            // Yazı arkası gölge efekti
+            ctx.shadowColor = "black";
+            ctx.shadowBlur = 15;
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "black";
+
+            // Yazıyı çiz
+            ctx.strokeText("YOU DIED", cvsWidth / 2, cvsHeight / 2 - 20);
+            ctx.fillText("YOU DIED", cvsWidth / 2, cvsHeight / 2 - 20);
+
+            // Alt bilgi metni (İsteğe bağlı)
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = "#FFFFFF";
+            ctx.font = "bold 20px monospace";
+            ctx.fillText("GAME OVER", cvsWidth / 2, cvsHeight / 2 + 50);
+
+            ctx.restore();
+        }
+    }
+
+    // ── LEVEL & THEME PROGRESSION ──
+
+    /** Tema indeksini level'e göre güncelle */
+    static updateThemeForLevel() {
+        this.currentThemeIndex = this.currentLevel % this.totalThemes;
+        let themeId = this.currentThemeIndex;
+        LevelManager.loadTheme(themeId);
+        console.log(`Level ${this.currentLevel} → Theme ${themeId}`);
+    }
+
+    /** Sahnedeki tüm düşmanları kontrol et - hiç düşman kalmadı mı? */
+    static checkLevelCompletion() {
+        // Oyuncu ölüyse level geçme
+        if (this.current && this.current.isDead) {
+            return false;
+        }
+
+        // Oyuncu dışında başka varlık var mı?
+        let enemyCount = this.allEntities.filter(ent => ent !== this.current && !ent.isDead).length;
+
+        if (enemyCount === 0 && this.allEntities.length > 1) {
+            return true; // Level tamamlandı!
+        }
+        return false;
+    }
+
+    /** Sonraki level'e geç */
+    static nextLevel() {
+        this.currentLevel++;
+
+        if (this.currentLevel >= this.totalLevels) {
+            this.currentLevel = 0; // Döngüsel olarak başa dön
+        }
+
+        console.log(`Proceeding to Level ${this.currentLevel}`);
+        this.clearScene();
+        this.updateThemeForLevel();
+        this.initScene(this.currentLevel);
+    }
+
+    /** Sahneyi temizle (tüm objeleri sıfırla) */
+    static clearScene() {
+        this.allGameObjects = [];
+        this.allEntities = [];
+        this.allObstacles = [];
+        this.allEnviroments = [];
+        this.allEnemies = [];
+        this.allPatrolPoints = [];
+        this.rosterIndex = 0;
+        this.current = null;
+    }
+
+    // ── LEVEL DESIGNS ──
+
     static initScene(level) {
-        if(level === 0){
-            let sceneWidth = 6500;
-            this.current = new Knight2(500, 700);
-
-            // Yeryüzü
-            new Obstacle(-500, 700, 5100, 500);
-            new Obstacle(5300, 600, 3500, 600);
-            // Sol ana engel
-            new Obstacle(0, 0, 400, 700);
-            // Sağ ana engel
-            new Obstacle(sceneWidth, 0, 3000, 700);
-
-            // Birinci bölge
-                new Obstacle(1000, 600, 200, 200);
-
-                new Obstacle(1900, 620, 200, 20);
-                new PatrolPoint(2000, 700, 150);
-                new Warrior0(2000, 700);
-
-            // İkinci bölge
-                new Obstacle(2900, 600, 200, 20);
-                new Obstacle(3100, 500, 200, 20);
-                new Obstacle(3300, 400, 200, 20);
-                new Obstacle(3100, 300, 200, 20);
-                new Obstacle(3300, 200, 800, 20);
-
-                new PatrolPoint(3450, 700, 250);
-                new Samurai0(3450, 700);
-
-                // Büyük engel
-                new Obstacle(4200, 200, 400, 700);
-
-                new Obstacle(4700, 300, 160, 20);
-                new Obstacle(4900, 400, 220, 20);
-                new Obstacle(4700, 500, 170, 20);
-                new Obstacle(4900, 600, 210, 20);
-
-            // Üçüncü bölge
-                new Obstacle(5500, 500, 100, 100);
-
-                new Obstacle(5900, 500, 300, 20);
-                new PatrolPoint(6050, 600, 150);
-
-                new Knight0(6050, 500);
-                new Demon0(6050, 600);
-
-            // Son engel
-                new Obstacle(6200, 400, 250, 20);
-
-            // Ortam
-                // Bulutlar
-                let cloudCount = 150; 
-                for(let i = 0; i<cloudCount; i++){
-                    let cloudPosX = Math.random()*(sceneWidth + 2000);
-                    let cloudPosY = GameManager.randomApproachMax(300, 0, 1.7);
-                    let cloudPosZ = (Math.random() * 0.2) + 0.2;
-                    let cloudNumber = Math.floor(Math.random()*10);
-                    new Cloud(cloudPosX, cloudPosY, cloudPosZ, cloudNumber);
-                }
-                // Birinci yeryüzü için ağaçlar
-                let treeCount0 = 120;
-                for (let i = 0; i<treeCount0; i++){
-                    let treePosX = 200 + Math.random()*4000;
-                    let treePosY = 675;
-                    let treePosZ = (Math.random() * 0.2) + 0.05;
-                    let treeNumber = Math.floor(Math.random()*14);
-                    let color = Math.floor(Math.random()*2);
-                    let colors = ["g", "y"];
-
-                    new Tree(treePosX, treePosY, treePosZ, treeNumber, colors[color]);
-
-                }
-                // Birinci yeryüzü için çalılar
-                let bushCount0 = 125;
-                for (let i = 0; i<bushCount0; i++){
-                    let bushPosX = 200 + Math.random()*4000;
-                    let bushPosY = 690;
-                    let bushPosZ = (Math.random() * 0.08) + 0.0;
-                    let bushNumber = Math.floor(Math.random()*15);
-                    let color = Math.floor(Math.random()*2);
-                    let colors = ["g", "y"];
-
-                    new Bush(bushPosX, bushPosY, bushPosZ, bushNumber, colors[color]);
-                }
-                // İkinci yeryüzü için ağaçlar
-                let treeCount1 = 60;
-                for (let i = 0; i<treeCount1; i++){
-                    let treePosX = 5700 + Math.random()*1200;
-                    let treePosY = 575;
-                    let treePosZ = (Math.random() * 0.2) + 0.05;
-                    let treeNumber = Math.floor(Math.random()*14);
-                    let color = Math.floor(Math.random()*2);
-                    let colors = ["g", "y"];
-
-                    new Tree(treePosX, treePosY, treePosZ, treeNumber, colors[color]);
-
-                }
-                // İkinci yeryüzü için çalılar
-                let bushCount1 = 60;
-                for (let i = 0; i<bushCount1; i++){
-                    let bushPosX = 5500 + Math.random()*1200;
-                    let bushPosY = 590;
-                    let bushPosZ = (Math.random() * 0.08) + 0.0;
-                    let bushNumber = Math.floor(Math.random()*15);
-                    let color = Math.floor(Math.random()*2);
-                    let colors = ["g", "y"];
-
-                    new Bush(bushPosX, bushPosY, bushPosZ, bushNumber, colors[color]);
-                }
-
-        }
-
-        else if(level === 1){
-            let sceneWidth = 4600;
-            // Başlangıç: 500, 700
-            this.current = new Knight2(2500, 700);
-            // Sol ana engel
-            new Obstacle(0, 0, 400, 700);
-            // Sağ ana engel
-            new Obstacle(sceneWidth, 0, 3000, 700);
-
-            let partWidth = 600;
-            for(let j = 0;j < 10; j++){
-                let s = Math.min(j, 10 - j);
-                let currentX = -500 + 540*j;
-                let currentY = 500 + 70*s;
-                let width = 500; let height = 500;
-                new Obstacle(currentX, currentY, width, height);
-                new PatrolPoint(currentX + width/2, currentY, width/2);
-                this.nextEntity(currentX + width/2, currentY);
-
-                let offset = 0.1;
-                let treeCount = 10;
-                for (let i = 0; i<treeCount; i++){
-                    let treePosX = currentX + width*offset + Math.random()*width*(0.9-offset);
-                    let treePosY = currentY - 25;
-                    let treePosZ = (Math.random() * 0.05) + 0.01;
-                    let treeNumber = Math.floor(Math.random()*14);
-                    let color = Math.floor(Math.random()*2);
-                    let colors = ["g", "y"];
-
-                    new Tree(treePosX, treePosY, treePosZ, treeNumber, colors[color]);
-
-                }
-                let bushCount = 15;
-                for (let i = 0; i<bushCount; i++){
-                    let bushPosX = currentX + width*offset + Math.random()*width*(0.9-offset);
-                    let bushPosY = currentY -10;
-                    let bushPosZ = (Math.random() * 0.02) + 0.0;
-                    let bushNumber = Math.floor(Math.random()*15);
-                    let color = Math.floor(Math.random()*2);
-                    let colors = ["g", "y"];
-
-                    new Bush(bushPosX, bushPosY, bushPosZ, bushNumber, colors[color]);
-                }
-            }  
-                // Bulutlar
-                let cloudCount = 150; 
-                for(let i = 0; i<cloudCount; i++){
-                    let cloudPosX = Math.random()*(sceneWidth + 2000);
-                    let cloudPosY = GameManager.randomApproachMax(300, 0, 1.7);
-                    let cloudPosZ = (Math.random() * 0.2) + 0.2;
-                    let cloudNumber = Math.floor(Math.random()*10);
-                    new Cloud(cloudPosX, cloudPosY, cloudPosZ, cloudNumber);
-                }
-        }
-        else if(level ===-1){
-            this.current = new Samurai0(-50,600);
-        new Obstacle(-50, 600, 100, 20);
-        new Knight0(0,700);
-        new PatrolPoint(0,700,250);
-        new Obstacle(-500,700, 10000, 20);
-
-        new Obstacle(-375, 600, 100, 200);
-        new Obstacle(275, 600, 100, 200);
-
-        new Hedgehog(-50, 550);
-        }
+        // All level generation logic has been extracted!
+        LevelBuilder.build(level);
     }
-        
-    static randomApproachMax(min, max, p = 2){
+
+    static randomApproachMax(min, max, p = 2) {
         let bias = 1 - Math.pow(Math.random(), p);
-        return min + ((max - min)*bias);
+        return min + ((max - min) * bias);
     }
-    // Girdi kontrolleri
+
+    // ── INPUT & GAME LOOP ──
+
     static checkInput() {
-        if(this.current.isDead === true){ return;}
-        if(this.current.isStunned){ return;}
+        if (this.current.isDead === true) { return; }
+        if (this.current.isStunned) { return; }
+
         // Zamanı geriye sar
         if (keys.KeyR) {
             for (let i = 0; i < this.allEntities.length; i++) {
@@ -266,14 +303,6 @@ class GameManager {
             }
 
             let isMoving = false;
-            if (keys.KeyW) {
-                this.current.applyForce(0, -1);
-                isMoving = true;
-            }
-            if (keys.KeyS) {
-                this.current.applyForce(0, 1);
-                isMoving = true;
-            }
             // Sola git
             if (keys.KeyA) {
                 this.current.applyForce(-1, 0);
@@ -295,11 +324,10 @@ class GameManager {
             // Saldır
             if (keys.KeyE) {
                 this.current.attack(10.0);
+                keys.KeyE = false;
             }
             // Zıpla
             if (keys.Space) {
-                // "JumpLock" sürekli zıplamaları önler
-                // "IsGrounded" varlığın yerde olma durumunu kontrol eder.
                 if (this.current.physics.isGrounded && !this.current.physics.jumpLock) {
                     this.current.physics.applyForce(0, -10);
                     this.current.changeState("jump");
@@ -318,16 +346,10 @@ class GameManager {
 
             // Karakter değiştir
             if (keys.KeyZ) {
-                let target = this.getClosestVisibleTarget();
-
-                if (target) {
-                    this.current = target;
-                }
-
+                this.forceSwitch(true);
                 keys.KeyZ = false;
             }
         }
-
     }
 
     static linesIntersect(x1, y1, x2, y2, x3, y3, x4, y4) {
@@ -339,6 +361,7 @@ class GameManager {
 
         return (ua >= 0 && ua <= 1) && (ub >= 0 && ub <= 1);
     }
+
     // İki varlık arasındaki uzaklığı döndürür
     static getDistance(ent1, ent2) {
         let dx = (ent1.posX + ent1.width / 2) - (ent2.posX + ent2.width / 2);
@@ -346,7 +369,7 @@ class GameManager {
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    //Connection Check
+    // Görüş kontrolü
     static checkVisibility(ent1, ent2) {
         let pX = ent1.posX + (ent1.width / 2);
         let pY = ent1.posY + (ent1.height / 2);
@@ -365,10 +388,10 @@ class GameManager {
             let hitRight = this.linesIntersect(pX, pY, eX, eY, oX + obs.width, oY, oX + obs.width, oY + obs.height);
 
             if (hitTop || hitBottom || hitLeft || hitRight) {
-                return false; // no connection
+                return false;
             }
         }
-        return true;  // connection
+        return true;
     }
 
     static getClosestVisibleTarget() {
@@ -396,11 +419,11 @@ class GameManager {
         }
         return closestTarget;
     }
+
     // Tolerasyona bağlı üst üste binme kontrolü
-    static toleratedOverlap(tolerance, entity, target){
+    static toleratedOverlap(tolerance, entity, target) {
         return (this.getDistance(entity, target) < tolerance);
     }
-    
 
     static drawConnectionLine(ctx) {
         let target = this.getClosestVisibleTarget();
@@ -416,21 +439,27 @@ class GameManager {
             ctx.beginPath();
             ctx.moveTo(pX, pY);
             ctx.lineTo(eX, eY);
-            ctx.strokeStyle = "#00FF00";
+            ctx.strokeStyle = "#00D09E";
             ctx.lineWidth = 2;
             ctx.stroke();
         }
     }
 
     static update(ctx) {
-        // Girdi kontrolleri her kare başına yapılır
-        this.checkInput();
-        this.drawConnectionLine(ctx);
+        // ── Level Completion Check ──
+        if (this.checkLevelCompletion()) {
+            console.log("🎉 Level Complete! Moving to next level...");
+            setTimeout(() => this.nextLevel(), 1000);
+            return; // Update döngüsünü durdur
+        }
 
+        // Girdi kontrolleri her kare başına yapılır
+        this.updatePossessionTimer();
+        this.checkInput();
 
         /* Arka plan çevre ögeleri */
         this.allEnviroments.forEach(env => {
-            if(env.posZ >= 0){
+            if (env.posZ >= 0) {
                 env.draw(ctx);
             }
         });
@@ -438,7 +467,7 @@ class GameManager {
         // Varlık çağrıları
         this.allEntities.forEach(entity => {
             // Yapay zeka çağrıları
-            if(entity !== this.current){
+            if (entity !== this.current) {
                 entity.ai.update();
             }
             // Varlık güncellemeleri
@@ -450,34 +479,35 @@ class GameManager {
                 entity.draw(ctx);
             }
         });
+
         // Engellerin çizimleri
         this.allObstacles.forEach(obstacle => {
             obstacle.draw(ctx);
         });
+
         // Debug mode çizimleri
-        if(GameManager.debugMode){
+        if (GameManager.debugMode) {
             this.allPatrolPoints.forEach(point => {
-                if(point.draw){
+                if (point.draw) {
                     point.draw(ctx);
                 }
             });
         }
+
         /* Ön plan çevre ögeleri */
         this.allEnviroments.forEach(env => {
-            if(env.posZ === -1){
+            if (env.posZ === -1) {
                 env.draw(ctx);
             }
         });
-        // Oyuncu varlık ölmediği sürece "Camera" oyuncuya odaklansın
-        if(!this.current.isDead){
+
+        this.drawConnectionLine(ctx);
+        this.drawPossessionHUD(ctx);
+
+        if (!this.current.isDead) {
             Camera.focus(this.current);
         }
+
+        this.drawDeathScreen(ctx);
     }
-
-
-
 }
-
-
-
-

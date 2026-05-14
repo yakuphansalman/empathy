@@ -43,7 +43,7 @@ class AI{
         }
 
         // Bir engele yandan çarparsa hedef konuma gitmek için zıplayabilir
-        let collision = this.entity.physics.collisionDir === 0 || this.entity.physics.collisionDir === 1;// Collided by left or right?
+        let collision = this.entity.physics.collisionDir === 0 || this.entity.physics.collisionDir === 1;// Sola mı yoksa sağa mı çarptı?
         if(collision && this.entity.physics.isGrounded){
             this.entity.changeState("jump");
             this.entity.applyForce(0, -5.0);

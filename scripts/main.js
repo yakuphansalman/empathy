@@ -1,13 +1,11 @@
 var cvs = document.getElementById('canvas');
 var ctx = cvs.getContext('2d');
 
-// ── Theme switching via keyboard (1-4) ────────────────────────────────────────
+// ── DEBUG MODE TOGGLE ──
 window.addEventListener('keydown', (e) => {
-    switch (e.code) {
-        case 'Digit1': LevelManager.loadTheme(LEVELS.FOREST); break;
-        case 'Digit2': LevelManager.loadTheme(LEVELS.WINTER); break;
-        case 'Digit3': LevelManager.loadTheme(LEVELS.NIGHT); break;
-        case 'Digit4': LevelManager.loadTheme(LEVELS.MAGIC); break;
+    if (e.code === 'KeyH') {
+        GameManager.debugMode = !GameManager.debugMode;
+        console.log(`Debug Mode: ${GameManager.debugMode ? 'ON' : 'OFF'}`);
     }
 });
 
@@ -16,11 +14,12 @@ window.onload = function () {
 
     // Start fonksiyonu içindekileri sadece bir kere çalıştırır
     function start() {
-        LevelManager.loadTheme(LEVELS.FOREST);
+        // İlk tema ve level'i ayarla
+        GameManager.updateThemeForLevel();
 
         // Sahneyi ilk açılışta başlat
         if (GameManager.initScene) {
-            GameManager.initScene(0);
+            GameManager.initScene(GameManager.currentLevel);
         }
     }
 
@@ -29,9 +28,9 @@ window.onload = function () {
         ctx.clearRect(0, 0, cvs.width, cvs.height);
 
         ctx.save();
-        ctx.translate(cvs.width/2, cvs.height/2);
+        ctx.translate(cvs.width / 2, cvs.height / 2);
         ctx.scale(Camera.zoom, Camera.zoom);
-        ctx.translate(-cvs.width/2, -cvs.height/2);
+        ctx.translate(-cvs.width / 2, -cvs.height / 2);
 
         // ── 1. Background (parallax, sky fallback) ──
         LevelManager.drawBackground(ctx, cvs);
@@ -39,17 +38,42 @@ window.onload = function () {
         // Yönetici sınıfı oyunu her kare başına kontrol eder
         GameManager.update(ctx);
 
-
-        
-
-        
-        
         ctx.restore();
 
-        // ── 6. HUD: theme selector ──
-        LevelManager.drawHUD(ctx, cvs);
+        // ── HUD: Seviye ve tema göstergesi ──
+        drawLevelHUD(ctx);
 
         requestAnimationFrame(update);
+    }
+
+    // ── HUD: Level ve Tema Bilgisi ──
+    function drawLevelHUD(ctx) {
+        ctx.save();
+        ctx.font = "bold 16px monospace";
+        ctx.textBaseline = "top";
+        ctx.fillStyle = "#FFFFFF";
+
+        // Level göstergesi
+        let levelText = `LEVEL: ${GameManager.currentLevel + 1}/4`;
+        ctx.fillText(levelText, 20, 20);
+
+        // Tema göstergesi
+        let themeNames = ["FOREST", "WINTER", "NIGHT", "MAGIC"];
+        let themeText = themeNames[GameManager.currentThemeIndex];
+        ctx.fillText(themeText, 20, 50);
+
+        // Düşman sayısı
+        let enemyCount = GameManager.allEntities.filter(e => e !== GameManager.current && !e.isDead).length;
+        let enemyText = `ENEMIES: ${enemyCount}`;
+        ctx.fillText(enemyText, 20, 80);
+
+        // Debug mode göstergesi
+        if (GameManager.debugMode) {
+            ctx.fillStyle = "#FF0000";
+            ctx.fillText("DEBUG MODE", 20, 110);
+        }
+
+        ctx.restore();
     }
 
     // ── Audio Setup ──
@@ -62,6 +86,7 @@ window.onload = function () {
     document.addEventListener('keydown', function () {
         bgMusic.play();
     }, { once: true });
+
     // START THE GAME LOOP
     start();
     update();

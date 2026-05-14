@@ -48,7 +48,7 @@ class Animation {
             }
         }
     }
-    // Replace the draw method in animation.js with this:
+    // animation.js dosyasındaki draw yöntemini şununla değiştirin:
     draw(ctx) {
         let currentColumn = this.currentFrame % this.columns;
         let currentRow = Math.floor(this.currentFrame / this.columns);
@@ -56,7 +56,7 @@ class Animation {
         let sourceX = currentColumn * this.frameWidth;
         let sourceY = currentRow * this.frameHeight;
         
-        // Just draw the frame perfectly centered. No math, no scaling here!
+        // Çerçeveyi tam ortalanmış şekilde çiz. Burada matematik yok, ölçeklendirme yok!
         ctx.drawImage(this.image, sourceX, sourceY, this.frameWidth, this.frameHeight, -this.frameWidth / 2, -this.frameHeight / 2, this.frameWidth, this.frameHeight);
     }
     reset() {

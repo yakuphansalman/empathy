@@ -13,7 +13,7 @@ const keys = {
     Space: false
 };
 
-//Listening specific keydown and keyup events
+// Belirli tuş basma ve tuş bırakma olaylarını dinleme
 window.addEventListener('keydown', (e) => {
     if (keys.hasOwnProperty(e.code)){
         keys[e.code]  = true;
