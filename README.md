@@ -45,7 +45,7 @@ Bu proje, HTML5 Canvas ve saf JavaScript (ES6) kullanılarak sıfırdan gelişti
 
 *  **Geri Sarma:** Tüm karakterlerin belirli durumlarını yığında saklayarak, her kare için geri çağırabilir.
 
-*  **Karakter Değiştirme:** Oyuncu sahnede istediği karaktere belirli bir menzildeyse geçiş yapabilir. Eğer 15 saniye sonunda geçiş yapmazsa zorunlu olarak geçer.
+*  **Karakter Değiştirme:** Oyuncu sahnede istediği karaktere belirli bir menzildeyse geçiş yapabilir. Eğer 7 saniye sonunda geçiş yapmazsa zorunlu olarak geçer.
 
 *  **Ana Oyuna Bağlılık:** Bu iki mekanikte seçtiğimiz oyunda bulunuyor.
 
