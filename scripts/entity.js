@@ -166,42 +166,6 @@ class Entity extends GameObject {
             ctx.fill();                         // Fill the shape with color
         }
 
-        // "DebugMode" elemanlarını çizer.
-        if (GameManager.debugMode) {
-            // Çarpışma algılama kutusunu çiz
-            ctx.strokeStyle = "#00D09E";
-            ctx.lineWidth = 1;
-
-            ctx.strokeRect(-this.width / 2, -this.height / 2, this.width, this.height);
-
-            ctx.fillStyle = "yellow";
-            ctx.fillRect(-2, -2, 4, 4);
-
-            // Görüş menzili
-            ctx.beginPath();
-            ctx.strokeStyle = "#0088FF";
-            ctx.lineWidth = 1;
-
-            let startAngle = this.facingRight === 1 ? -Math.PI / 2 : Math.PI / 2;
-            let endAngle = this.facingRight === 1 ? Math.PI / 2 : (3 * Math.PI) / 2;
-
-            ctx.arc(0, 0, this.visionRange, startAngle, endAngle, false);
-
-            ctx.stroke();
-
-            // Saldırı menzili
-            ctx.beginPath();
-            ctx.strokeStyle = "#FF2211";
-            ctx.lineWidth = 1;
-            let attackCenterX = (this.width / 2) * this.facingRight;
-
-            ctx.arc(attackCenterX, 0, this.attackRange, startAngle, endAngle, false);
-            ctx.lineTo(attackCenterX, 0);
-            ctx.closePath();
-
-            ctx.stroke();
-        }
-
         // Belirli ofsetleri uygula (Mantarlar 0, Oyuncu -15 olacak)
         ctx.translate(this.spriteOffsetX * this.facingRight, this.spriteOffsetY);
         ctx.scale(this.facingRight, 1);

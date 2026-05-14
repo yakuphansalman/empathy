@@ -1,7 +1,7 @@
 var cvs = document.getElementById('canvas');
 var ctx = cvs.getContext('2d');
 
-// ── DEBUG MODE TOGGLE ──
+// Oyun yöneticisi, seviye yönetimi, animasyon ve ses yönetimi gibi tüm önemli sınıflar burada tanımlanır ve başlatılır
 window.addEventListener('keydown', (e) => {
     if (e.code === 'KeyH') {
         GameManager.debugMode = !GameManager.debugMode;

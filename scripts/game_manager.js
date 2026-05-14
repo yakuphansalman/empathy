@@ -1,12 +1,13 @@
 class GameManager {
     static debugMode = false;
 
-    // ── LEVEL & THEME MANAGEMENT ──
+    // Level ve tema yönetimi
     static currentLevel = 0;
     static totalLevels = 4; // Level 0, 1, 2, 3
     static currentThemeIndex = 0;
     static totalThemes = 4;
 
+    // Zorla geçiş mekanizması
     static possessionDuration = 5000;  // ms — kaç ms'de bir zorla geçiş (7 sn)
     static possessionTimer = 0;      // geçerli karakterde geçen süre (ms)
     static lastTick = Date.now();
@@ -69,7 +70,7 @@ class GameManager {
 
         let remaining = this.possessionDuration - this.possessionTimer;
 
-        // Süre doldu → zorla geçiş
+        // Süre doldu zorla geçiş
         if (remaining <= 0) {
             this.forceSwitch();
         }
@@ -82,7 +83,7 @@ class GameManager {
         // Önce yeşil bağ (görüş açısı) olan en yakın hedefi bul
         let target = this.getClosestVisibleTarget();
 
-        // EĞER MANUEL BASILDIYSA ('Z' tuşu): Görünür hedef yoksa geçişi reddet!
+        // Heder yoksa ve manuel geçiş isteği varsa, görüş açısı olmadan en yakın hedefi bul
         if (isManual && !target) {
             this.forceSwitchPending = false;
             return;
@@ -208,7 +209,7 @@ class GameManager {
             ctx.strokeText("YOU DIED", cvsWidth / 2, cvsHeight / 2 - 20);
             ctx.fillText("YOU DIED", cvsWidth / 2, cvsHeight / 2 - 20);
 
-            // Alt bilgi metni (İsteğe bağlı)
+            // Alt bilgi metni
             ctx.shadowBlur = 0;
             ctx.fillStyle = "#FFFFFF";
             ctx.font = "bold 20px monospace";
@@ -218,7 +219,7 @@ class GameManager {
         }
     }
 
-    // ── LEVEL & THEME PROGRESSION ──
+    // Level tamamlanma kontrolü, tema güncelleme ve level geçiş mekanizmaları
 
     /** Tema indeksini level'e göre güncelle */
     static updateThemeForLevel() {
@@ -270,10 +271,10 @@ class GameManager {
         this.current = null;
     }
 
-    // ── LEVEL DESIGNS ──
+    // Level oluşturma ve diğer yardımcı fonksiyonlar
 
     static initScene(level) {
-        // All level generation logic has been extracted!
+        // Tüm seviyeler için ortak başlangıç işlemleri burada yapılabilir (örneğin, kamera sıfırlama, ses yönetimi vb.)
         LevelBuilder.build(level);
     }
 
@@ -282,7 +283,7 @@ class GameManager {
         return min + ((max - min) * bias);
     }
 
-    // ── INPUT & GAME LOOP ──
+    // Girdi kontrolü, görüş ve hedef seçimi, çizim fonksiyonları ve diğer oyun mekanikleri
 
     static checkInput() {
         if (this.current.isDead === true) { return; }
@@ -446,9 +447,9 @@ class GameManager {
     }
 
     static update(ctx) {
-        // ── Level Completion Check ──
+        // Level tamamlanma kontrolü
         if (this.checkLevelCompletion()) {
-            console.log("🎉 Level Complete! Moving to next level...");
+            console.log("Level Complete! Moving to next level...");
             setTimeout(() => this.nextLevel(), 1000);
             return; // Update döngüsünü durdur
         }
@@ -484,15 +485,6 @@ class GameManager {
         this.allObstacles.forEach(obstacle => {
             obstacle.draw(ctx);
         });
-
-        // Debug mode çizimleri
-        if (GameManager.debugMode) {
-            this.allPatrolPoints.forEach(point => {
-                if (point.draw) {
-                    point.draw(ctx);
-                }
-            });
-        }
 
         /* Ön plan çevre ögeleri */
         this.allEnviroments.forEach(env => {

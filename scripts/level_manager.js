@@ -86,7 +86,7 @@ class LevelManager {
 
     // Arka planı çiz
     static drawBackground(ctx, cvs) {
-        // Sky fallback
+        // Gökyüzü rengini çiz (arka plan resmi yüklenene kadar veya yüklenemezse görünecek)
         ctx.fillStyle = this.skyColor;
         ctx.fillRect(0, 0, cvs.width, cvs.height);
 
@@ -105,24 +105,5 @@ class LevelManager {
         for (let x = startX; x < cvs.width + bgW; x += bgW) {
             ctx.drawImage(img, x, 0, bgW, bgH);
         }
-    }
-
-    //  HUD: Tema seçici (1-4)
-    static drawHUD(ctx, cvs) {
-        let labels = ["1:Forest", "2:Winter", "3:Night", "4:Magic"];
-        let colors = ["#3db87a", "#8ecfea", "#5b6fa8", "#b06be3"];
-
-        ctx.save();
-        ctx.font = "bold 13px monospace";
-        ctx.textBaseline = "top";
-
-        let x = 10;
-        let y = 10;
-        labels.forEach((label, i) => {
-            let isActive = i === this.currentThemeId;
-            ctx.fillStyle = isActive ? colors[i] : "rgba(255,255,255,0.35)";
-            ctx.fillText((isActive ? "-> " : "  ") + label, x, y + i * 20);
-        });
-        ctx.restore();
     }
 }

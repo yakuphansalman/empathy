@@ -14,7 +14,7 @@ class Animation {
         this.isReversed = false;        
         this.currentFrame = 0;
         this.gameFrame = 0;
-        this.isDone = false;  //Is the animation repetitive?
+        this.isDone = false;  // Animasyon te
     }
     
     update() {
@@ -48,7 +48,6 @@ class Animation {
             }
         }
     }
-    // animation.js dosyasındaki draw yöntemini şununla değiştirin:
     draw(ctx) {
         let currentColumn = this.currentFrame % this.columns;
         let currentRow = Math.floor(this.currentFrame / this.columns);

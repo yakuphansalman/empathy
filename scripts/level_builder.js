@@ -49,7 +49,6 @@ class LevelBuilder {
             // Son engel
             new Obstacle(6200, 400, 250, 20);
 
-            // Ortam
             // Bulutlar
             let cloudCount = 150;
             for (let i = 0; i < cloudCount; i++) {
